@@ -1,20 +1,25 @@
-import { default as React, JSX } from 'react';
+import { default as React, ReactNode, ReactElement, CSSProperties } from 'react';
 
-type TVirtualization = {
-    items: (string | JSX.Element | (({ index }: {
+type ReactComponentOrElement = string | ReactElement | ReactNode | ((props: {
+    index: number;
+}) => ReactNode) | {
+    component?: (props: {
         index: number;
-    }) => JSX.Element) | {
-        component: ({ index }: {
-            index: number;
-        }) => JSX.Element;
-        props: {
-            customProp: string;
-        };
-    })[];
+    } & Record<string, any>) => ReactNode;
+    render?: (props: {
+        index: number;
+    } & Record<string, any>) => ReactNode;
+    props?: Record<string, any>;
+};
+export interface VirtualizationProps {
+    items: ReactComponentOrElement[];
     className?: string;
     itemClassName?: string;
-    style?: React.CSSProperties;
-    itemStyle?: React.CSSProperties;
-};
-export declare const Virtualization: ({ items, className, itemClassName, style, itemStyle }: TVirtualization) => import("react/jsx-runtime").JSX.Element;
+    style?: CSSProperties;
+    itemStyle?: CSSProperties;
+    overscanCount?: number;
+    initialRenderCount?: number;
+    estimatedItemHeight?: number;
+}
+export declare const Virtualization: React.FC<VirtualizationProps>;
 export {};

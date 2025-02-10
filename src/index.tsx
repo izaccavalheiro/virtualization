@@ -1,40 +1,87 @@
-import React, { JSX, useCallback, useEffect, useRef, useState } from 'react';
+import React, { 
+  useCallback, 
+  useRef, 
+  useState,
+  ReactNode,
+  ReactElement,
+  CSSProperties
+} from 'react';
 
-type TVirtualization = {
-  items: (string | JSX.Element | (({ index }: {
-    index: number;
-}) => JSX.Element) | {
-    component: ({ index }: {
-      index: number;
-    }) => JSX.Element;
-    props: {
-        customProp: string;
+// Compatibility check for hooks
+const useIsomorphicLayoutEffect = 
+  typeof window !== 'undefined' && typeof window.document !== 'undefined'
+    ? React.useLayoutEffect
+    : React.useEffect;
+
+// Polyfill for older React versions
+const useStableCallback = <T extends (...args: any[]) => any>(callback: T): T => {
+  const ref = useRef<T>(callback);
+  
+  useIsomorphicLayoutEffect(() => {
+    ref.current = callback;
+  });
+  
+  return useCallback((...args: Parameters<T>): ReturnType<T> => {
+    return ref.current(...args);
+  }, []) as T;
+};
+
+// Compatibility type for wider React version support
+type ReactComponentOrElement = 
+  | string 
+  | ReactElement 
+  | ReactNode 
+  | ((props: { index: number }) => ReactNode)
+  | {
+      component?: (props: { index: number } & Record<string, any>) => ReactNode;
+      render?: (props: { index: number } & Record<string, any>) => ReactNode;
+      props?: Record<string, any>;
     };
-})[];
+
+export interface VirtualizationProps {
+  items: ReactComponentOrElement[];
   className?: string;
   itemClassName?: string;
-  style?: React.CSSProperties;
-  itemStyle?: React.CSSProperties;
+  style?: CSSProperties;
+  itemStyle?: CSSProperties;
+  
+  // Optional props for more granular control
+  overscanCount?: number;
+  initialRenderCount?: number;
+  estimatedItemHeight?: number;
 }
 
-export const Virtualization = ({ 
+export const Virtualization: React.FC<VirtualizationProps> = ({ 
   items, 
   className = '',
   itemClassName = '',
   style,
-  itemStyle
-}: TVirtualization) => {
-  const containerRef = useRef(null);
-  const heightsMap = useRef(new Map());
-  const [renderRange, setRenderRange] = useState({ start: 0, end: 20 });
+  itemStyle,
+  overscanCount = 5,
+  initialRenderCount = 20,
+  estimatedItemHeight = 100
+}) => {
+  // Ensure React is available and fully initialized
+  if (!React.useState) {
+    throw new Error('React hooks are not available. Ensure you are using a compatible version of React.');
+  }
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heightsMap = useRef(new Map<number, number>());
+  const [renderRange, setRenderRange] = useState({ 
+    start: 0, 
+    end: initialRenderCount 
+  });
   const [totalHeight, setTotalHeight] = useState(0);
   const previousScrollTop = useRef(0);
-  const scrollingDirection = useRef('down');
-  const positionsMap = useRef(new Map());
+  const scrollingDirection = useRef<'up' | 'down'>('down');
+  const positionsMap = useRef(new Map<number, number>());
 
-  const getItemHeight = (index: number) => heightsMap.current.get(index) || 100;
+  const getItemHeight = useStableCallback((index: number) => 
+    heightsMap.current.get(index) || estimatedItemHeight
+  );
 
-  const calculatePositions = useCallback(() => {
+  const calculatePositions = useStableCallback(() => {
     let currentPosition = 0;
     positionsMap.current.clear();
     
@@ -44,9 +91,9 @@ export const Virtualization = ({
     }
     
     return currentPosition;
-  }, [items.length]);
+  });
 
-  const measureItem = (index: number, element: HTMLDivElement | null) => {
+  const measureItem = useStableCallback((index: number, element: HTMLDivElement | null) => {
     if (!element) return;
     
     const height = element.getBoundingClientRect().height;
@@ -56,9 +103,9 @@ export const Virtualization = ({
       const totalHeight = calculatePositions();
       setTotalHeight(totalHeight);
     }
-  };
+  });
 
-  const findIndexForPosition = useCallback((position: number) => {
+  const findIndexForPosition = useStableCallback((position: number) => {
     let low = 0;
     let high = items.length - 1;
 
@@ -79,15 +126,14 @@ export const Virtualization = ({
     }
 
     return 0;
-  }, [items.length, totalHeight]);
+  });
 
-  const updateRenderRange = useCallback(() => {
+  const updateRenderRange = useStableCallback(() => {
     if (!containerRef.current) return;
 
-    const containerRefCurrent: unknown = containerRef.current;
-
-    const scrollTop = (containerRefCurrent as HTMLElement).scrollTop;
-    const viewportHeight = (containerRefCurrent as HTMLElement).clientHeight;
+    const containerElement = containerRef.current;
+    const scrollTop = containerElement.scrollTop;
+    const viewportHeight = containerElement.clientHeight;
     const scrollBottom = scrollTop + viewportHeight;
     
     scrollingDirection.current = scrollTop > previousScrollTop.current ? 'down' : 'up';
@@ -116,15 +162,15 @@ export const Virtualization = ({
 
     setRenderRange({
       start: startIndex,
-      end: endIndex
+      end: endIndex + overscanCount
     });
-  }, [findIndexForPosition, items.length, totalHeight]);
+  });
 
   const handleScroll = () => {
     requestAnimationFrame(updateRenderRange);
   };
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     heightsMap.current.clear();
     calculatePositions();
     updateRenderRange();
@@ -133,29 +179,40 @@ export const Virtualization = ({
   const visibleItems = items.slice(renderRange.start, renderRange.end + 1);
   const topPadding = positionsMap.current.get(renderRange.start) || 0;
 
-  const renderItem = (item: any, index: number) => {
-    if (typeof item === 'string') {
-      return <div dangerouslySetInnerHTML={{ __html: item }} />;
+  const renderItem = useStableCallback((item: any, index: number) => {
+    // Robust item rendering with extensive fallbacks
+    try {
+      if (typeof item === 'string') {
+        return <div key={`string-${renderRange.start + index}`} dangerouslySetInnerHTML={{ __html: item }} />;
+      }
+
+      if (React.isValidElement(item)) {
+        return React.cloneElement(item, { key: `element-${renderRange.start + index}` });
+      }
+
+      if (typeof item === 'function') {
+        const ItemComponent = item as (props: { index: number }) => ReactNode;
+        return <React.Fragment key={`func-${renderRange.start + index}`}>
+          {ItemComponent({ index: renderRange.start + index })}
+        </React.Fragment>;
+      }
+
+      if (item && (item.render || item.component)) {
+        const Component = item.render || item.component;
+        const props = item.props || {};
+        return <React.Fragment key={`complex-${renderRange.start + index}`}>
+          {Component({ ...props, index: renderRange.start + index })}
+        </React.Fragment>;
+      }
+
+      return <div key={`default-${renderRange.start + index}`}>{String(item)}</div>;
+    } catch (error) {
+      console.error('Error rendering virtualization item:', error);
+      return <div key={`error-${renderRange.start + index}`}>Render Error</div>;
     }
+  });
 
-    if (React.isValidElement(item)) {
-      return item;
-    }
-
-    if (typeof item === 'function') {
-      const ItemComponent = item;
-      return <ItemComponent />;
-    }
-
-    if (item && (item.render || item.component)) {
-      const Component = item.render || item.component;
-      return <Component {...item.props} index={renderRange.start + index} />;
-    }
-
-    return String(item);
-  };
-
-  const containerStyle = {
+  const containerStyle: CSSProperties = {
     overflow: 'auto',
     ...style
   };
