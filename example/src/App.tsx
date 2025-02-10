@@ -505,7 +505,7 @@ const mixedItems = [
 const App = () => {
   // Custom styles
   const listStyles: React.CSSProperties = {
-    height: '100%',
+    height: '100vh',
     border: '1px solid #ccc',
     borderRadius: '4px'
   };
