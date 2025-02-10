@@ -1,6 +1,24 @@
 {
   "name": "simple-virtualization",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "description": "Virtualization for React",
+  "keywords": [
+    "react",
+    "viewport",
+    "list",
+    "windowing",
+    "window",
+    "virualization",
+    "virtual",
+    "virtualized"
+  ],
+  "homepage": "https://github.com/izaccavalheiro/virtualization",
+  "license": "MIT",
+  "author": {
+    "name": "Izac Cavalheiro",
+    "email": "izac@izaccavalheiro.com",
+    "url": "https://github.com/izaccavalheiro/virtualization"
+  },
   "type": "module",
   "files": [
     "dist"
