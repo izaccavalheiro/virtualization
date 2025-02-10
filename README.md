@@ -1,8 +1,8 @@
-# Simple Virtualization Component
+# Simple Virtualization Component for React
 
 ## Overview
 
-The Simple Virtualization component is a high-performance rendering solution designed to efficiently handle large lists of items by only rendering the items currently visible in the viewport. This approach significantly improves performance and memory usage when dealing with extensive lists or dynamic content.
+The Simple Virtualization Component for React is a high-performance rendering solution designed to efficiently handle large lists of items by only rendering the items currently visible in the viewport. This approach significantly improves performance and memory usage when dealing with extensive lists or dynamic content.
 
 ## Features
 
