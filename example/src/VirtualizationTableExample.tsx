@@ -1,4 +1,4 @@
-import { VirtualizationTable } from "../../src";
+import { VirtualizationTable } from "simple-virtualization";
 
 interface UserData {
   id: number;

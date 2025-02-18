@@ -12,7 +12,8 @@
   "description": "",
   "dependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "simple-virtualization": "^1.0.7"
   },
   "devDependencies": {
     "@types/react": "^19.0.8",

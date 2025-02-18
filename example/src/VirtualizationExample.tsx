@@ -1,6 +1,6 @@
 // example/src/App.tsx
 import React from 'react';
-import { Virtualization } from '../../src';
+import { Virtualization } from 'simple-virtualization';
 
 // Mixed items example
 const contentItems = [
