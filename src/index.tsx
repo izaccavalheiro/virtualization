@@ -7,6 +7,8 @@ import React, {
   CSSProperties
 } from 'react';
 
+export * from './Table'
+
 // Compatibility check for hooks
 const useIsomorphicLayoutEffect = 
   typeof window !== 'undefined' && typeof window.document !== 'undefined'
@@ -51,7 +53,7 @@ export interface VirtualizationProps {
   estimatedItemHeight?: number;
 }
 
-export const Virtualization: React.FC<VirtualizationProps> = ({ 
+export function Virtualization({ 
   items, 
   className = '',
   itemClassName = '',
@@ -60,7 +62,7 @@ export const Virtualization: React.FC<VirtualizationProps> = ({
   overscanCount = 5,
   initialRenderCount = 20,
   estimatedItemHeight = 100
-}) => {
+}: VirtualizationProps) {
   // Ensure React is available and fully initialized
   if (!React.useState) {
     throw new Error('React hooks are not available. Ensure you are using a compatible version of React.');
