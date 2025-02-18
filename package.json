@@ -1,6 +1,6 @@
 {
   "name": "simple-virtualization",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Virtualization for React",
   "keywords": [
     "react",
@@ -37,6 +37,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "preexample": "cd example && npm i",
     "example": "cd example && npm run dev"
   },
   "peerDependencies": {
