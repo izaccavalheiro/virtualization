@@ -1,5 +1,6 @@
-import { default as React, ReactNode, ReactElement, CSSProperties } from 'react';
+import { ReactNode, ReactElement, CSSProperties } from 'react';
 
+export * from './Table';
 type ReactComponentOrElement = string | ReactElement | ReactNode | ((props: {
     index: number;
 }) => ReactNode) | {
@@ -21,5 +22,4 @@ export interface VirtualizationProps {
     initialRenderCount?: number;
     estimatedItemHeight?: number;
 }
-export declare const Virtualization: React.FC<VirtualizationProps>;
-export {};
+export declare function Virtualization({ items, className, itemClassName, style, itemStyle, overscanCount, initialRenderCount, estimatedItemHeight }: VirtualizationProps): import("react/jsx-runtime").JSX.Element;
