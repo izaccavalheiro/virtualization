@@ -40,9 +40,9 @@ Both components are designed to optimize performance by rendering only the visib
 ## Installation
 
 ```bash
-npm install react-virtualization
+npm install simple-virtualization
 # or
-yarn add react-virtualization
+yarn add simple-virtualization
 ```
 
 ## Basic Usage
@@ -50,7 +50,7 @@ yarn add react-virtualization
 ### Virtualization Component
 
 ```typescript
-import { Virtualization } from 'react-virtualization';
+import { Virtualization } from 'simple-virtualization';
 
 function SimpleList() {
   const items = Array.from({ length: 10000 }, (_, i) => `Item ${i}`);
@@ -69,7 +69,7 @@ function SimpleList() {
 ### VirtualizationTable Component
 
 ```typescript
-import { VirtualizationTable } from 'react-virtualization';
+import { VirtualizationTable } from 'simple-virtualization';
 
 function DataTable() {
   const data = Array.from({ length: 10000 }, (_, i) => ({
