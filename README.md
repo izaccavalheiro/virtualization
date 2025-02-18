@@ -2,148 +2,255 @@
 
 ## Overview
 
-The Simple Virtualization Component for React is a high-performance rendering solution designed to efficiently handle large lists of items by only rendering the items currently visible in the viewport. This approach significantly improves performance and memory usage when dealing with extensive lists or dynamic content.
+This package provides two powerful virtualization components for React applications:
+1. `Virtualization`: A core component for rendering large lists efficiently
+2. `VirtualizationTable`: A specialized component for handling large datasets in tabular format
+
+Both components are designed to optimize performance by rendering only the visible portions of your content.
 
 ## Features
 
-- **Dynamic Rendering**: Renders only the items currently visible in the viewport
-- **Variable Height Support**: Automatically measures and adjusts to items of different heights
-- **Efficient Scrolling**: Optimized scroll handling with minimal performance overhead
-- **Flexible Item Types**: Supports multiple item types including:
-  - Strings
+### Core Virtualization Features
+- Dynamic viewport rendering
+- Variable height item support
+- Efficient scroll handling with requestAnimationFrame
+- Support for multiple content types:
+  - String content
   - React Elements
-  - Functional Components
-  - Custom Components with Props
+  - Function components
+  - Complex components with props
+- Customizable overscan (buffer) zones
+- Automatic height calculation and caching
+- Smooth scrolling optimization
+- Isomorphic layout effect support
+- Error boundary protection for item rendering
+
+### VirtualizationTable Features
+- Sortable columns with multiple states (asc/desc/none)
+- Customizable header, row, and footer components
+- Synchronized horizontal scrolling across sections
+- Dynamic column width calculations
+- Responsive design support
+- Custom styling for all table sections
+- Row virtualization for optimal performance
+- Support for distributed footer layouts
+- Built-in ResizeObserver integration
+- TypeScript support with comprehensive types
 
 ## Installation
 
-Install the component using npm or yarn:
-
 ```bash
-npm install simple-virtualization
+npm install react-virtualization
 # or
-yarn add simple-virtualization
+yarn add react-virtualization
 ```
 
-## Usage
+## Basic Usage
 
-### Basic Example
+### Virtualization Component
 
 ```typescript
-import { Virtualization } from 'simple-virtualization';
+import { Virtualization } from 'react-virtualization';
 
-function App() {
-  const items = [
-    'Item 1', 
-    'Item 2', 
-    <CustomComponent key="3" />,
-    ({ index }) => <DynamicComponent index={index} />
-  ];
+function SimpleList() {
+  const items = Array.from({ length: 10000 }, (_, i) => `Item ${i}`);
 
   return (
-    <Virtualization 
-      items={items} 
-      className="my-list"
-      itemClassName="list-item"
+    <Virtualization
+      items={items}
+      className="virtual-list"
+      estimatedItemHeight={40}
+      overscanCount={5}
     />
   );
 }
 ```
 
-## Props
-
-### `TVirtualization`
-
-| Prop Name | Type | Description | Default |
-|-----------|------|-------------|---------|
-| `items` | `Array` | List of items to render | Required |
-| `className` | `string` | CSS class for the container | `''` |
-| `itemClassName` | `string` | CSS class for each item | `''` |
-| `style` | `React.CSSProperties` | Custom styles for the container | `undefined` |
-| `itemStyle` | `React.CSSProperties` | Custom styles for each item | `undefined` |
-
-### Supported Item Types
-
-1. **Strings**: Plain text content
-   ```typescript
-   const items = ['Hello', 'World'];
-   ```
-
-2. **React Elements**: Direct React components
-   ```typescript
-   const items = [<div>First</div>, <span>Second</span>];
-   ```
-
-3. **Functional Components**: Components with optional index
-   ```typescript
-   const items = [
-     ({ index }) => <div>Item {index}</div>
-   ];
-   ```
-
-4. **Custom Components**: Components with additional props
-   ```typescript
-   const items = [
-     {
-       component: ({ index, customProp }) => <div>{customProp}</div>,
-       props: { customProp: 'Hello' }
-     }
-   ];
-   ```
-
-## How It Works
-
-The Virtualization component uses several optimization techniques:
-
-- **Dynamic Height Measurement**: Calculates and caches item heights
-- **Binary Search for Positioning**: Efficiently finds the correct items to render
-- **Scroll Direction Detection**: Adapts rendering based on scroll direction
-- **Intelligent Buffering**: Renders extra items beyond the viewport for smooth scrolling
-
-## Performance Considerations
-
-- Ideal for lists with 100+ items
-- Supports variable-height items
-- Minimizes DOM manipulation
-- Reduces memory usage for large lists
-
-## Limitations
-
-- Requires initial render to measure item heights
-- Best suited for relatively uniform item sizes
-- May have slight performance overhead for very small lists
-
-## Advanced Configuration
-
-### Custom Styling
+### VirtualizationTable Component
 
 ```typescript
-<Virtualization 
+import { VirtualizationTable } from 'react-virtualization';
+
+function DataTable() {
+  const data = Array.from({ length: 10000 }, (_, i) => ({
+    id: i,
+    name: `Item ${i}`,
+    value: Math.random() * 100
+  }));
+
+  return (
+    <VirtualizationTable
+      data={data}
+      Header={({ onSort, sortState }) => (
+        <div className="header-row">
+          <div onClick={() => onSort('name')}>Name</div>
+          <div onClick={() => onSort('value')}>Value</div>
+        </div>
+      )}
+      Row={({ item, index }) => (
+        <>
+          <div>{item.name}</div>
+          <div>{item.value.toFixed(2)}</div>
+        </>
+      )}
+      columnWidths={['200px', '150px']}
+      tableHeight="500px"
+    />
+  );
+}
+```
+
+## Component Props
+
+### Virtualization Props
+
+```typescript
+interface VirtualizationProps {
+  items: ReactComponentOrElement[];
+  className?: string;
+  itemClassName?: string;
+  style?: CSSProperties;
+  itemStyle?: CSSProperties;
+  overscanCount?: number;
+  initialRenderCount?: number;
+  estimatedItemHeight?: number;
+}
+```
+
+### VirtualizationTable Props
+
+```typescript
+interface VirtualizationTableProps<T> {
+  data: T[];
+  Header: React.ComponentType<{
+    onSort: (column: string) => void;
+    sortState: SortState;
+  }>;
+  Footer?: React.ComponentType;
+  Row: React.ComponentType<{ item: T; index: number }>;
+  style?: React.CSSProperties;
+  headerStyle?: React.CSSProperties;
+  footerStyle?: React.CSSProperties;
+  rowStyle?: React.CSSProperties;
+  tableHeight?: string | number;
+  estimatedRowHeight?: number;
+  overscanCount?: number;
+  columnWidths?: string[];
+  footerDistributed?: boolean;
+  defaultSortColumn?: string;
+  defaultSortDirection?: SortDirection;
+}
+```
+
+## Advanced Features
+
+### Dynamic Height Calculation
+
+Both components automatically measure and adapt to varying content heights:
+
+```typescript
+<Virtualization
   items={items}
-  style={{ maxHeight: '500px' }}
-  itemStyle={{ 
-    padding: '10px', 
-    borderBottom: '1px solid #eee' 
-  }}
+  estimatedItemHeight={50}  // Initial estimate
+  // Heights are automatically measured and cached
 />
 ```
 
+### Sorting in VirtualizationTable
+
+```typescript
+<VirtualizationTable
+  data={data}
+  defaultSortColumn="name"
+  defaultSortDirection="asc"
+  Header={({ onSort, sortState }) => (
+    <div className="header-row">
+      <div onClick={() => onSort('name')}>
+        Name {sortState.column === 'name' ? sortState.direction : ''}
+      </div>
+    </div>
+  )}
+  // ...
+/>
+```
+
+### Custom Column Widths
+
+```typescript
+<VirtualizationTable
+  columnWidths={['200px', '150px', '100px']}
+  // Columns will resize proportionally when container width changes
+/>
+```
+
+### Scroll Synchronization
+
+The table component automatically synchronizes horizontal scrolling between header, body, and footer sections:
+
+```typescript
+<VirtualizationTable
+  Header={HeaderComponent}
+  Footer={FooterComponent}
+  // Horizontal scroll will be synchronized across all sections
+/>
+```
+
+## Performance Optimizations
+
+### Virtualization Component
+- Binary search for efficient item positioning
+- Cached height measurements
+- Scroll direction-aware rendering
+- Minimal DOM updates
+- RequestAnimationFrame for smooth scrolling
+- Stable callback optimizations
+
+### VirtualizationTable Component
+- Virtualized row rendering
+- Optimized scroll synchronization
+- Efficient column width calculations
+- Debounced resize handling
+- Memoized sorting operations
+
+## Browser Support
+
+Supports all modern browsers with these features:
+- ResizeObserver API
+- RequestAnimationFrame
+- CSS Grid
+- Flexbox
+
 ## TypeScript Support
 
-Full TypeScript support is provided with comprehensive type definitions.
+Both components include comprehensive TypeScript definitions:
 
-## Browser Compatibility
+```typescript
+// Example type usage
+type YourDataType = {
+  id: number;
+  name: string;
+  // ...
+};
 
-Compatible with modern browsers supporting React and ES6 features.
+<VirtualizationTable<YourDataType>
+  data={yourData}
+  // TypeScript will ensure type safety
+/>
+```
 
 ## Contributing
 
-Contributions are welcome! Please submit pull requests or open issues on our GitHub repository.
+Contributions are welcome! Please follow these steps:
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 
 MIT License
 
-## Contact
+## Support
 
-For support or questions, please open an issue on the project repository.
+For issues and feature requests, please use the GitHub issue tracker.
