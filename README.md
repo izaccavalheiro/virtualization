@@ -1,4 +1,4 @@
-# Simple Virtualization Component for React
+# Simple Virtualization for React
 
 ## Overview
 
@@ -44,6 +44,24 @@ npm install simple-virtualization
 # or
 yarn add simple-virtualization
 ```
+
+## Example App
+
+The package includes a comprehensive example application that showcases all features of both the Virtualization and VirtualizationTable components. You can run the example locally using:
+
+```bash
+npm run example
+```
+
+The example app demonstrates:
+- Basic and advanced usage of Virtualization component
+- Table virtualization with sorting and custom column widths
+- Dynamic height calculations
+- Custom styling examples
+- Performance optimization techniques
+- Different types of content rendering
+- Responsive design patterns
+- Integration with TypeScript
 
 ## Basic Usage
 
