@@ -8,9 +8,11 @@
     "list",
     "windowing",
     "window",
-    "virualization",
+    "virtualization",
     "virtual",
-    "virtualized"
+    "virtualized",
+    "grid",
+    "table"
   ],
   "homepage": "https://github.com/izaccavalheiro/virtualization",
   "license": "MIT",
