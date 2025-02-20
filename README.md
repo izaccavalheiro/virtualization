@@ -67,15 +67,69 @@ yarn add simple-virtualization
 
 ## Example App
 
-The package includes a comprehensive example application that showcases all features of both the Virtualization and VirtualizationTable components. You can run the example locally using:
+The package includes a comprehensive example application that demonstrates all three virtualization components. The example app showcases various implementation patterns and features:
+
+### Virtualization Component Example
+- Handles mixed content types including:
+  - HTML strings
+  - React components
+  - Functional components
+  - Component configurations with props
+- Demonstrates custom styling with CSS-in-JS
+- Shows proper component composition
+- Implements efficient content rendering strategies
+- Supports dynamic height calculations
+- Example items include various layouts:
+  - Simple text content
+  - Complex grid layouts
+  - Image placeholders
+  - Nested components
+
+### VirtualizationTable Example
+- Implements a full-featured data table with:
+  - 12 columns with different data types
+  - Custom column widths
+  - Sortable columns with visual indicators
+  - Status indicators with color coding
+  - Custom cell rendering
+  - Comprehensive footer with statistics
+- Features advanced user data management:
+  - 1000+ mock user records
+  - Multiple data types (text, dates, numbers)
+  - Status tracking
+  - Performance metrics
+  - Team information
+- Demonstrates sophisticated styling:
+  - Hover effects
+  - Status indicators
+  - Responsive layout
+  - Custom header/footer designs
+
+### VirtualizationGrid Example
+- Showcases a 1000x1000 grid implementation
+- Features:
+  - Dynamic cell background colors
+  - Interactive cell selection
+  - Custom content generation
+  - Responsive layout
+  - Efficient rendering of large datasets
+- Implements:
+  - Cell click handlers
+  - Visual selection feedback
+  - Custom cell styling
+  - Dynamic content generation
+  - Performant scroll handling
+
+### Running the Example
 
 ```bash
 npm run example
 ```
 
 The example app demonstrates:
-- Basic and advanced usage of Virtualization component
+- Basic and advanced usage of all three components
 - Table virtualization with sorting and custom column widths
+- Grid virtualization with interactive features
 - Dynamic height calculations
 - Custom styling examples
 - Performance optimization techniques
