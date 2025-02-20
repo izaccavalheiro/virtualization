@@ -1,7 +1,8 @@
 import { ReactNode, ReactElement, CSSProperties } from 'react';
 
 export * from './Table';
-type ReactComponentOrElement = string | ReactElement | ReactNode | ((props: {
+export * from './Grid';
+export type ReactComponentOrElement = string | ReactElement | ReactNode | ((props: {
     index: number;
 }) => ReactNode) | {
     component?: (props: {
