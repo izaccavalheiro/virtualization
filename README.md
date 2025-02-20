@@ -2,11 +2,12 @@
 
 ## Overview
 
-This package provides two powerful virtualization components for React applications:
+This package provides three powerful virtualization components for React applications:
 1. `Virtualization`: A core component for rendering large lists efficiently
 2. `VirtualizationTable`: A specialized component for handling large datasets in tabular format
+3. `VirtualizationGrid`: A component for efficiently rendering large two-dimensional grids
 
-Both components are designed to optimize performance by rendering only the visible portions of your content.
+All components are designed to optimize performance by rendering only the visible portions of your content.
 
 ## Features
 
@@ -24,6 +25,9 @@ Both components are designed to optimize performance by rendering only the visib
 - Smooth scrolling optimization
 - Isomorphic layout effect support
 - Error boundary protection for item rendering
+- Compatible with older React versions via polyfills
+- Binary search for efficient item positioning
+- Scroll direction-aware rendering optimization
 
 ### VirtualizationTable Features
 - Sortable columns with multiple states (asc/desc/none)
@@ -36,6 +40,22 @@ Both components are designed to optimize performance by rendering only the visib
 - Support for distributed footer layouts
 - Built-in ResizeObserver integration
 - TypeScript support with comprehensive types
+- Smooth scroll synchronization between sections
+- Advanced sorting with null state support
+- Optimized scroll event handling
+- Automatic column width distribution
+
+### VirtualizationGrid Features
+- Efficient rendering of large two-dimensional data sets
+- Independent row and column virtualization
+- Customizable cell dimensions
+- Dynamic viewport calculation
+- Optimized scroll performance
+- Flexible cell rendering API
+- Customizable styling for grid and cells
+- Built-in overscan support for smooth scrolling
+- Efficient memory usage for large datasets
+- Responsive to container size changes
 
 ## Installation
 
@@ -118,6 +138,31 @@ function DataTable() {
 }
 ```
 
+### VirtualizationGrid Component
+
+```typescript
+import { VirtualizationGrid } from 'simple-virtualization';
+
+function DataGrid() {
+  return (
+    <VirtualizationGrid
+      dimensions={{
+        rowCount: 1000,
+        columnCount: 1000
+      }}
+      estimatedColumnWidth={100}
+      estimatedRowHeight={50}
+      overscanCount={2}
+      renderCell={(rowIndex, columnIndex) => (
+        `Cell ${rowIndex},${columnIndex}`
+      )}
+      className="virtual-grid"
+      style={{ height: '500px' }}
+    />
+  );
+}
+```
+
 ## Component Props
 
 ### Virtualization Props
@@ -160,11 +205,30 @@ interface VirtualizationTableProps<T> {
 }
 ```
 
+### VirtualizationGrid Props
+
+```typescript
+interface VirtualizationGridProps {
+  dimensions: {
+    rowCount: number;
+    columnCount: number;
+  };
+  estimatedColumnWidth?: number;
+  estimatedRowHeight?: number;
+  overscanCount?: number;
+  renderCell: (rowIndex: number, columnIndex: number) => React.ReactNode;
+  className?: string;
+  style?: CSSProperties;
+  cellClassName?: string;
+  cellStyle?: CSSProperties;
+}
+```
+
 ## Advanced Features
 
 ### Dynamic Height Calculation
 
-Both components automatically measure and adapt to varying content heights:
+Both list and table components automatically measure and adapt to varying content heights:
 
 ```typescript
 <Virtualization
@@ -174,42 +238,31 @@ Both components automatically measure and adapt to varying content heights:
 />
 ```
 
-### Sorting in VirtualizationTable
+### Grid Cell Customization
 
 ```typescript
-<VirtualizationTable
-  data={data}
-  defaultSortColumn="name"
-  defaultSortDirection="asc"
-  Header={({ onSort, sortState }) => (
-    <div className="header-row">
-      <div onClick={() => onSort('name')}>
-        Name {sortState.column === 'name' ? sortState.direction : ''}
-      </div>
+<VirtualizationGrid
+  dimensions={{ rowCount: 100, columnCount: 100 }}
+  cellStyle={{
+    border: '1px solid #ccc',
+    padding: '8px'
+  }}
+  renderCell={(row, col) => (
+    <div className="custom-cell">
+      {/* Custom cell content */}
     </div>
   )}
-  // ...
 />
 ```
 
-### Custom Column Widths
+### Table Sorting and Column Management
 
 ```typescript
 <VirtualizationTable
+  defaultSortColumn="name"
+  defaultSortDirection="asc"
   columnWidths={['200px', '150px', '100px']}
   // Columns will resize proportionally when container width changes
-/>
-```
-
-### Scroll Synchronization
-
-The table component automatically synchronizes horizontal scrolling between header, body, and footer sections:
-
-```typescript
-<VirtualizationTable
-  Header={HeaderComponent}
-  Footer={FooterComponent}
-  // Horizontal scroll will be synchronized across all sections
 />
 ```
 
@@ -230,6 +283,13 @@ The table component automatically synchronizes horizontal scrolling between head
 - Debounced resize handling
 - Memoized sorting operations
 
+### VirtualizationGrid Component
+- Efficient viewport calculation
+- Minimal cell re-rendering
+- Optimized scroll handling
+- Memory-efficient cell management
+- Smart overscan implementation
+
 ## Browser Support
 
 Supports all modern browsers with these features:
@@ -237,10 +297,11 @@ Supports all modern browsers with these features:
 - RequestAnimationFrame
 - CSS Grid
 - Flexbox
+- IntersectionObserver (optional)
 
 ## TypeScript Support
 
-Both components include comprehensive TypeScript definitions:
+All components include comprehensive TypeScript definitions:
 
 ```typescript
 // Example type usage
