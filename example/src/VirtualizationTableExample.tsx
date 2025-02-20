@@ -349,8 +349,7 @@ export const VirtualizationTableExample = () => {
       Footer={ExampleFooter}
       style={tableStyles.container}
       footerStyle={{ display: 'flex' }}
-      tableHeight={600}
-      estimatedRowHeight={56} // Accounting for padding and content
+      tableHeight={300}
     />
   );
 };
