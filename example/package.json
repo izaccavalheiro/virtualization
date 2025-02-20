@@ -10,7 +10,7 @@
   "dependencies": {
     "react": "18.0.0",
     "react-dom": "18.0.0",
-    "simple-virtualization": "^1.0.8"
+    "simple-virtualization": "^1.0.9"
   },
   "devDependencies": {
     "@types/react": "18.0.0",

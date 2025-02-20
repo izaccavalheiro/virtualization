@@ -1,6 +1,7 @@
 // example/src/App.tsx
 import { VirtualizationExample } from './VirtualizationExample';
 import { VirtualizationTableExample } from './VirtualizationTableExample';
+import { VirtualizationGridExample } from './VirtualizationGridExample';
 
 const App = () => {
   return (
@@ -12,6 +13,9 @@ const App = () => {
 
       <h2>Table</h2>
       <VirtualizationTableExample />
+
+      <h2>Grid</h2>
+      <VirtualizationGridExample />
     </>
   );
 };
