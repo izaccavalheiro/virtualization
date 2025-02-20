@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 
 export * from './Table'
+export * from './Grid'
 
 // Compatibility check for hooks
 const useIsomorphicLayoutEffect = 
@@ -29,7 +30,7 @@ const useStableCallback = <T extends (...args: any[]) => any>(callback: T): T =>
 };
 
 // Compatibility type for wider React version support
-type ReactComponentOrElement = 
+export type ReactComponentOrElement = 
   | string 
   | ReactElement 
   | ReactNode 
