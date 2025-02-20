@@ -1,4 +1,3 @@
-// example/src/App.tsx
 import { VirtualizationExample } from './VirtualizationExample';
 import { VirtualizationTableExample } from './VirtualizationTableExample';
 import { VirtualizationGridExample } from './VirtualizationGridExample';

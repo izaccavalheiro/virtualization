@@ -1,8 +1,6 @@
-// example/src/App.tsx
 import React from 'react';
 import { Virtualization } from 'simple-virtualization';
 
-// Mixed items example
 const contentItems = [
   `
     <h2>Simple Title</h2>
@@ -366,7 +364,6 @@ const contentItems = [
   `,
 ];
 
-// React component
 const CustomItem = ({ index }: { index: number }) => (
   <div>
     <h2>Custom Component {index}</h2>
@@ -388,7 +385,6 @@ const CustomItem = ({ index }: { index: number }) => (
   </div>
 );
 
-// React component
 const AnotherCustomItem = ({ index }: { index: number }) => (
   <div>
     <h2>Custom Component {index}</h2>
@@ -408,7 +404,6 @@ const AnotherCustomItem = ({ index }: { index: number }) => (
   </div>
 );
 
-// Mixed items array
 const mixedItems = [
   ...contentItems,
   '<h2>HTML Item</h2>',
@@ -516,7 +511,6 @@ export const VirtualizationExample = () => {
     backgroundColor: '#fff'
   };
 
-  // Custom CSS classes (optional)
   const listClasses = 'my-custom-list';
   const itemClasses = 'my-custom-item';
 

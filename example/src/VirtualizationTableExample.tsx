@@ -11,7 +11,6 @@ interface UserData {
   teamSize?: number;
 }
 
-// Helper function to generate random dates within the last year
 const generateRandomDate = () => {
   const end = new Date();
   const start = new Date(new Date().setFullYear(end.getFullYear() - 1));
@@ -19,12 +18,10 @@ const generateRandomDate = () => {
   return randomDate.toISOString().split('T')[0];
 };
 
-// Helper function to get random array element
 const getRandomElement = <T,>(arr: T[]): T => {
   return arr[Math.floor(Math.random() * arr.length)];
 };
 
-// Sample data arrays for generation
 const firstNames = [
   'James', 'Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael', 'Linda',
   'William', 'Elizabeth', 'David', 'Barbara', 'Richard', 'Susan', 'Joseph', 'Jessica',
@@ -49,7 +46,6 @@ const roles = [
 
 const statuses: Array<UserData['status']> = ['active', 'inactive', 'pending'];
 
-// Generate mock data
 export const generateMockData = (count: number): UserData[] => {
   return Array.from({ length: count }, (_, index) => {
     const firstName = getRandomElement(firstNames);
@@ -74,10 +70,8 @@ export const generateMockData = (count: number): UserData[] => {
   });
 };
 
-// Create example data
 export const mockItems = generateMockData(1000);
 
-// CSS-in-JS type definitions
 type CSSProperties = React.CSSProperties;
 type PseudoProperties = {
   '&:hover'?: CSSProperties;
@@ -153,7 +147,6 @@ const styles: StyleType = {
   }
 };
 
-// Column configuration
 interface ColumnConfig {
   key: string;
   label: string;
@@ -288,7 +281,6 @@ export const ExampleRow = ({ item }: { item: UserData; index: number }) => {
   );
 };
 
-// Example footer component
 export const ExampleFooter = () => {
   const cellStyle: React.CSSProperties = {
     padding: '16px',
@@ -296,7 +288,6 @@ export const ExampleFooter = () => {
     textAlign: 'left'
   };
 
-  // Fill first cell and span across all columns to distribute content
   return (
     <>
       <div style={{
