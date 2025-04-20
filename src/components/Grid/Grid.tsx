@@ -5,23 +5,7 @@ import React, {
   useLayoutEffect,
   CSSProperties
 } from 'react';
-
-export interface GridDimensions {
-  rowCount: number;
-  columnCount: number;
-}
-
-export interface VirtualizationGridProps {
-  dimensions: GridDimensions;
-  estimatedColumnWidth?: number;
-  estimatedRowHeight?: number;
-  overscanCount?: number;
-  renderCell: (rowIndex: number, columnIndex: number) => React.ReactNode;
-  className?: string;
-  style?: CSSProperties;
-  cellClassName?: string;
-  cellStyle?: CSSProperties;
-}
+import { VirtualizationGridProps } from './Grid.types';
 
 export function VirtualizationGrid({
   dimensions,

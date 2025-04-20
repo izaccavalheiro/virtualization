@@ -1,46 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Virtualization } from './';
-
-type CSSProperties = React.CSSProperties;
-type PseudoProperties = {
-  '&:hover'?: CSSProperties;
-  '&:active'?: CSSProperties;
-  '&:focus'?: CSSProperties;
-  '&:before'?: CSSProperties;
-  '&:after'?: CSSProperties;
-  '&:first-child'?: CSSProperties;
-  '&:last-child'?: CSSProperties;
-};
-
-type CSSPropertiesWithPseudo = CSSProperties & PseudoProperties;
-
-type SortDirection = 'asc' | 'desc' | null;
-
-interface SortState {
-  column: string | null;
-  direction: SortDirection;
-}
-
-interface VirtualizationTableProps<T> {
-  data: T[];
-  Header: React.ComponentType<{
-    onSort: (column: string) => void;
-    sortState: SortState;
-  }>;
-  Footer?: React.ComponentType;
-  Row: React.ComponentType<{ item: T; index: number }>;
-  style?: React.CSSProperties;
-  headerStyle?: React.CSSProperties;
-  footerStyle?: React.CSSProperties;
-  rowStyle?: React.CSSProperties;
-  tableHeight?: string | number;
-  estimatedRowHeight?: number;
-  overscanCount?: number;
-  columnWidths?: string[];
-  footerDistributed?: boolean;
-  defaultSortColumn?: string;
-  defaultSortDirection?: SortDirection;
-}
+import { Virtualization } from '../..';
+import { CSSPropertiesWithPseudo, SortState, VirtualizationTableProps } from './Table.types';
 
 export function VirtualizationTable<T>({
   data,
@@ -71,7 +31,6 @@ export function VirtualizationTable<T>({
   const bodyWrapperRef = useRef<HTMLDivElement>(null);
   const footerWrapperRef = useRef<HTMLDivElement>(null);
 
-      // Calculate column widths based on container width and specified column widths
   const calculateColumnWidths = useCallback(() => {
     if (!headerWrapperRef.current || !containerRef.current || !initialColumnWidths) {
       return;
@@ -81,12 +40,10 @@ export function VirtualizationTable<T>({
     const scrollbarWidth = (bodyWrapperRef.current?.offsetWidth && bodyWrapperRef.current?.clientWidth && (bodyWrapperRef.current?.offsetWidth - bodyWrapperRef.current?.clientWidth)) || 0;
     const availableWidth = containerWidth - scrollbarWidth;
 
-    // Calculate total width from specified column widths
     const totalSpecifiedWidth = initialColumnWidths.reduce((sum, width) => {
       return sum + parseInt(width, 10);
     }, 0);
 
-    // If container is wider than total specified width, adjust columns proportionally
     if (availableWidth > totalSpecifiedWidth) {
       const scale = availableWidth / totalSpecifiedWidth;
       const newColumnWidths = initialColumnWidths.map(width => {
@@ -95,12 +52,10 @@ export function VirtualizationTable<T>({
       });
       setColumnWidths(newColumnWidths);
     } else {
-      // Use original specified widths
       setColumnWidths(initialColumnWidths);
     }
   }, []);
 
-  // Use ResizeObserver for container resizing
   useEffect(() => {
     console.log('Setting up ResizeObserver');
     
@@ -122,27 +77,23 @@ export function VirtualizationTable<T>({
     };
   }, [calculateColumnWidths]);
 
-  // Calculate initial column widths after header mount
   useEffect(() => {
     console.log('Initial column width calculation');
-    // Wait for next frame to ensure DOM is ready
+    
     requestAnimationFrame(() => {
       calculateColumnWidths();
     });
   }, [calculateColumnWidths]);
 
-  // Generate grid template columns
   const gridTemplateColumns = columnWidths.length > 0
     ? columnWidths.join(' ')
     : `repeat(${columnCount}, 1fr)`;
 
-  // Calculate total width
   const totalWidth = columnWidths.reduce((sum, width) => {
     const numWidth = parseInt(width);
     return sum + (isNaN(numWidth) ? 0 : numWidth);
   }, 0);
 
-  // Base styles
   const baseStyles: {[a: string]: CSSPropertiesWithPseudo} = {
     container: {
       display: 'flex',
@@ -190,7 +141,6 @@ export function VirtualizationTable<T>({
 
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  // Function to sync horizontal scroll
   const syncHorizontalScroll = useCallback((scrollLeft: number) => {
     setScrollLeft(scrollLeft);
     requestAnimationFrame(() => {
@@ -206,7 +156,6 @@ export function VirtualizationTable<T>({
     });
   }, []);
 
-  // Handle scroll events
   const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const newScrollLeft = (event.target as HTMLDivElement).scrollLeft;
     if (newScrollLeft !== scrollLeft) {
@@ -214,7 +163,6 @@ export function VirtualizationTable<T>({
     }
   }, [scrollLeft, syncHorizontalScroll]);
 
-  // Watch for horizontal scroll
   useEffect(() => {
     const headerEl = headerWrapperRef.current;
     const bodyEl = bodyWrapperRef.current;
@@ -231,7 +179,6 @@ export function VirtualizationTable<T>({
     };
   }, [handleScroll]);
 
-  // Sort handler
   const handleSort = (column: string) => {
     setSortState(prevState => ({
       column,
@@ -246,7 +193,6 @@ export function VirtualizationTable<T>({
     }));
   };
 
-  // Sort data
   const sortedData = React.useMemo(() => {
     if (!sortState.column || !sortState.direction) {
       return data;
@@ -263,7 +209,6 @@ export function VirtualizationTable<T>({
     });
   }, [data, sortState.column, sortState.direction]);
 
-  // Transform data items into renderable components
   const renderableItems = sortedData.map((item) => ({
     component: ({ index: virtualIndex }: { index: number }) => (
       <div style={baseStyles.gridContainer}>
@@ -279,8 +224,7 @@ export function VirtualizationTable<T>({
     if (isScrolling.current) return;
     
     isScrolling.current = true;
-    
-    // Use requestAnimationFrame for smooth synchronization
+
     requestAnimationFrame(() => {
       if (source !== 'header' && headerWrapperRef.current) {
         headerWrapperRef.current.scrollLeft = scrollLeft;
@@ -292,7 +236,6 @@ export function VirtualizationTable<T>({
         footerWrapperRef.current.scrollLeft = scrollLeft;
       }
 
-      // Reset scrolling flag after a short delay
       if (scrollTimeoutRef.current) {
         window.clearTimeout(scrollTimeoutRef.current);
       }
@@ -303,13 +246,11 @@ export function VirtualizationTable<T>({
     });
   }, []);
 
-  // Scroll event handlers for each section
   const createScrollHandler = (source: 'header' | 'body' | 'footer') => (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.target as HTMLDivElement;
     syncScroll(target.scrollLeft, source);
   };
 
-  // Cleanup function
   useEffect(() => {
     return () => {
       if (scrollTimeoutRef.current) {
@@ -318,7 +259,6 @@ export function VirtualizationTable<T>({
     };
   }, []);
 
-  // Apply scroll styles
   const scrollStyles = {
     horizontalScroll: {
       overflowY: 'hidden' as const,
@@ -332,7 +272,6 @@ export function VirtualizationTable<T>({
 
   return (
     <div ref={containerRef} style={baseStyles.container}>
-      {/* Header */}
       <div
         ref={headerWrapperRef}
         style={{
@@ -349,7 +288,6 @@ export function VirtualizationTable<T>({
         </div>
       </div>
 
-      {/* Body */}
       <div
         ref={bodyWrapperRef}
         style={baseStyles.bodyWrapper}
@@ -371,7 +309,6 @@ export function VirtualizationTable<T>({
         </div>
       </div>
 
-      {/* Footer */}
       {Footer && (
         <div
           ref={footerWrapperRef}
