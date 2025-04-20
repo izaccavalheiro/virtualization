@@ -1,11 +1,21 @@
-import { default as React } from 'react';
+import { CSSProperties } from 'react';
 
-type SortDirection = 'asc' | 'desc' | null;
-interface SortState {
+type PseudoProperties = {
+    '&:hover'?: CSSProperties;
+    '&:active'?: CSSProperties;
+    '&:focus'?: CSSProperties;
+    '&:before'?: CSSProperties;
+    '&:after'?: CSSProperties;
+    '&:first-child'?: CSSProperties;
+    '&:last-child'?: CSSProperties;
+};
+export type CSSPropertiesWithPseudo = CSSProperties & PseudoProperties;
+export type SortDirection = 'asc' | 'desc' | null;
+export interface SortState {
     column: string | null;
     direction: SortDirection;
 }
-interface VirtualizationTableProps<T> {
+export interface VirtualizationTableProps<T> {
     data: T[];
     Header: React.ComponentType<{
         onSort: (column: string) => void;
@@ -28,5 +38,4 @@ interface VirtualizationTableProps<T> {
     defaultSortColumn?: string;
     defaultSortDirection?: SortDirection;
 }
-export declare function VirtualizationTable<T>({ data, Header, Footer, Row, style, headerStyle, footerStyle, rowStyle, tableHeight, estimatedRowHeight, overscanCount, columnWidths: initialColumnWidths, footerDistributed, defaultSortColumn, defaultSortDirection }: VirtualizationTableProps<T>): import("react/jsx-runtime").JSX.Element;
 export {};

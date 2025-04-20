@@ -1,4 +1,4 @@
-import H, { useState as ie, useRef as M, useCallback as ce, useEffect as _e, useLayoutEffect as gr } from "react";
+import H, { useRef as M, useState as ie, useCallback as ce, useLayoutEffect as gr, useEffect as _e } from "react";
 var Pe = { exports: {} }, be = {};
 /**
  * @license React
@@ -626,6 +626,100 @@ React keys must be passed directly to JSX without using spread:
 process.env.NODE_ENV === "production" ? Pe.exports = mr() : Pe.exports = yr();
 var g = Pe.exports;
 function Er({
+  dimensions: p,
+  estimatedColumnWidth: x = 100,
+  estimatedRowHeight: j = 50,
+  overscanCount: k = 2,
+  renderCell: Y,
+  className: B = "",
+  style: V,
+  cellClassName: W = "",
+  cellStyle: m
+}) {
+  const C = M(null), [i, b] = ie({
+    rowStart: 0,
+    rowEnd: 10,
+    columnStart: 0,
+    columnEnd: 10
+  }), O = ce(() => {
+    if (!C.current) return;
+    const {
+      scrollTop: R,
+      scrollLeft: T,
+      clientHeight: E,
+      clientWidth: L
+    } = C.current, N = Math.floor(R / j), ee = Math.min(
+      p.rowCount - 1,
+      Math.ceil((R + E) / j)
+    ), U = Math.floor(T / x), o = Math.min(
+      p.columnCount - 1,
+      Math.ceil((T + L) / x)
+    );
+    b({
+      rowStart: Math.max(0, N - k),
+      rowEnd: Math.min(p.rowCount - 1, ee + k),
+      columnStart: Math.max(0, U - k),
+      columnEnd: Math.min(p.columnCount - 1, o + k)
+    });
+  }, [p, j, x, k]), z = ce(() => {
+    requestAnimationFrame(O);
+  }, [O]);
+  gr(() => {
+    O();
+  }, [O]);
+  const K = p.rowCount * j, Q = p.columnCount * x, A = i.rowStart * j, D = i.columnStart * x, f = [];
+  for (let R = i.rowStart; R <= i.rowEnd; R++) {
+    const T = [];
+    for (let E = i.columnStart; E <= i.columnEnd; E++)
+      T.push(
+        /* @__PURE__ */ g.jsx(
+          "div",
+          {
+            className: W,
+            style: {
+              ...m,
+              display: "inline-block",
+              width: x,
+              height: j,
+              verticalAlign: "top"
+            },
+            children: Y(R, E)
+          },
+          `${R}-${E}`
+        )
+      );
+    f.push(
+      /* @__PURE__ */ g.jsx(
+        "div",
+        {
+          style: {
+            height: j,
+            whiteSpace: "nowrap"
+          },
+          children: T
+        },
+        R
+      )
+    );
+  }
+  const te = {
+    overflow: "auto",
+    width: "100%",
+    height: "100%",
+    ...V
+  };
+  return /* @__PURE__ */ g.jsx(
+    "div",
+    {
+      ref: C,
+      className: B,
+      style: te,
+      onScroll: z,
+      children: /* @__PURE__ */ g.jsx("div", { style: { height: K, width: Q }, children: /* @__PURE__ */ g.jsx("div", { style: { paddingTop: A, paddingLeft: D }, children: f }) })
+    }
+  );
+}
+function wr({
   data: p,
   Header: x,
   Footer: j,
@@ -821,100 +915,6 @@ function Er({
     )
   ] });
 }
-function wr({
-  dimensions: p,
-  estimatedColumnWidth: x = 100,
-  estimatedRowHeight: j = 50,
-  overscanCount: k = 2,
-  renderCell: Y,
-  className: B = "",
-  style: V,
-  cellClassName: W = "",
-  cellStyle: m
-}) {
-  const C = M(null), [i, b] = ie({
-    rowStart: 0,
-    rowEnd: 10,
-    columnStart: 0,
-    columnEnd: 10
-  }), O = ce(() => {
-    if (!C.current) return;
-    const {
-      scrollTop: R,
-      scrollLeft: T,
-      clientHeight: E,
-      clientWidth: L
-    } = C.current, N = Math.floor(R / j), ee = Math.min(
-      p.rowCount - 1,
-      Math.ceil((R + E) / j)
-    ), U = Math.floor(T / x), o = Math.min(
-      p.columnCount - 1,
-      Math.ceil((T + L) / x)
-    );
-    b({
-      rowStart: Math.max(0, N - k),
-      rowEnd: Math.min(p.rowCount - 1, ee + k),
-      columnStart: Math.max(0, U - k),
-      columnEnd: Math.min(p.columnCount - 1, o + k)
-    });
-  }, [p, j, x, k]), z = ce(() => {
-    requestAnimationFrame(O);
-  }, [O]);
-  gr(() => {
-    O();
-  }, [O]);
-  const K = p.rowCount * j, Q = p.columnCount * x, A = i.rowStart * j, D = i.columnStart * x, f = [];
-  for (let R = i.rowStart; R <= i.rowEnd; R++) {
-    const T = [];
-    for (let E = i.columnStart; E <= i.columnEnd; E++)
-      T.push(
-        /* @__PURE__ */ g.jsx(
-          "div",
-          {
-            className: W,
-            style: {
-              ...m,
-              display: "inline-block",
-              width: x,
-              height: j,
-              verticalAlign: "top"
-            },
-            children: Y(R, E)
-          },
-          `${R}-${E}`
-        )
-      );
-    f.push(
-      /* @__PURE__ */ g.jsx(
-        "div",
-        {
-          style: {
-            height: j,
-            whiteSpace: "nowrap"
-          },
-          children: T
-        },
-        R
-      )
-    );
-  }
-  const te = {
-    overflow: "auto",
-    width: "100%",
-    height: "100%",
-    ...V
-  };
-  return /* @__PURE__ */ g.jsx(
-    "div",
-    {
-      ref: C,
-      className: B,
-      style: te,
-      onScroll: z,
-      children: /* @__PURE__ */ g.jsx("div", { style: { height: K, width: Q }, children: /* @__PURE__ */ g.jsx("div", { style: { paddingTop: A, paddingLeft: D }, children: f }) })
-    }
-  );
-}
 const Je = typeof window < "u" && typeof window.document < "u" ? H.useLayoutEffect : H.useEffect, pe = (p) => {
   const x = M(p);
   return Je(() => {
@@ -1024,6 +1024,6 @@ function br({
 }
 export {
   br as Virtualization,
-  wr as VirtualizationGrid,
-  Er as VirtualizationTable
+  Er as VirtualizationGrid,
+  wr as VirtualizationTable
 };

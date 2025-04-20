@@ -1,4 +1,4 @@
-import { default as React, CSSProperties } from 'react';
+import { CSSProperties } from 'react';
 
 export interface GridDimensions {
     rowCount: number;
@@ -15,4 +15,3 @@ export interface VirtualizationGridProps {
     cellClassName?: string;
     cellStyle?: CSSProperties;
 }
-export declare function VirtualizationGrid({ dimensions, estimatedColumnWidth, estimatedRowHeight, overscanCount, renderCell, className, style, cellClassName, cellStyle }: VirtualizationGridProps): import("react/jsx-runtime").JSX.Element;
