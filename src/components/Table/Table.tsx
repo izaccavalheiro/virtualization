@@ -57,10 +57,7 @@ export function VirtualizationTable<T>({
   }, []);
 
   useEffect(() => {
-    console.log('Setting up ResizeObserver');
-    
-    const resizeObserver = new ResizeObserver(entries => {
-      console.log('Resize observed:', entries[0].contentRect.width);
+    const resizeObserver = new ResizeObserver(() => {
       requestAnimationFrame(() => {
         calculateColumnWidths();
       });
@@ -68,18 +65,14 @@ export function VirtualizationTable<T>({
 
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
-      console.log('Observing container');
     }
 
     return () => {
-      console.log('Cleaning up ResizeObserver');
       resizeObserver.disconnect();
     };
   }, [calculateColumnWidths]);
 
   useEffect(() => {
-    console.log('Initial column width calculation');
-    
     requestAnimationFrame(() => {
       calculateColumnWidths();
     });
@@ -156,7 +149,7 @@ export function VirtualizationTable<T>({
     });
   }, []);
 
-  const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+  const handleScroll = useCallback((event: Event) => {
     const newScrollLeft = (event.target as HTMLDivElement).scrollLeft;
     if (newScrollLeft !== scrollLeft) {
       syncHorizontalScroll(newScrollLeft);
@@ -168,14 +161,14 @@ export function VirtualizationTable<T>({
     const bodyEl = bodyWrapperRef.current;
     const footerEl = footerWrapperRef.current;
 
-    headerEl?.addEventListener('scroll', handleScroll as any);
-    bodyEl?.addEventListener('scroll', handleScroll as any);
-    footerEl?.addEventListener('scroll', handleScroll as any);
+    headerEl?.addEventListener('scroll', handleScroll);
+    bodyEl?.addEventListener('scroll', handleScroll);
+    footerEl?.addEventListener('scroll', handleScroll);
 
     return () => {
-      headerEl?.removeEventListener('scroll', handleScroll as any);
-      bodyEl?.removeEventListener('scroll', handleScroll as any);
-      footerEl?.removeEventListener('scroll', handleScroll as any);
+      headerEl?.removeEventListener('scroll', handleScroll);
+      bodyEl?.removeEventListener('scroll', handleScroll);
+      footerEl?.removeEventListener('scroll', handleScroll);
     };
   }, [handleScroll]);
 
@@ -217,39 +210,7 @@ export function VirtualizationTable<T>({
     )
   }));
 
-  const isScrolling = useRef(false);
   const scrollTimeoutRef = useRef<number>();
-
-  const syncScroll = useCallback((scrollLeft: number, source: 'header' | 'body' | 'footer') => {
-    if (isScrolling.current) return;
-    
-    isScrolling.current = true;
-
-    requestAnimationFrame(() => {
-      if (source !== 'header' && headerWrapperRef.current) {
-        headerWrapperRef.current.scrollLeft = scrollLeft;
-      }
-      if (source !== 'body' && bodyWrapperRef.current) {
-        bodyWrapperRef.current.scrollLeft = scrollLeft;
-      }
-      if (source !== 'footer' && footerWrapperRef.current) {
-        footerWrapperRef.current.scrollLeft = scrollLeft;
-      }
-
-      if (scrollTimeoutRef.current) {
-        window.clearTimeout(scrollTimeoutRef.current);
-      }
-      
-      scrollTimeoutRef.current = window.setTimeout(() => {
-        isScrolling.current = false;
-      }, 50) as unknown as number;
-    });
-  }, []);
-
-  const createScrollHandler = (source: 'header' | 'body' | 'footer') => (event: React.UIEvent<HTMLDivElement>) => {
-    const target = event.target as HTMLDivElement;
-    syncScroll(target.scrollLeft, source);
-  };
 
   useEffect(() => {
     return () => {
@@ -278,7 +239,6 @@ export function VirtualizationTable<T>({
           ...baseStyles.headerWrapper,
           ...scrollStyles.horizontalScroll
         }}
-        onScroll={createScrollHandler('header')}
       >
         <div style={{
           ...baseStyles.gridContainer,
@@ -291,7 +251,6 @@ export function VirtualizationTable<T>({
       <div
         ref={bodyWrapperRef}
         style={baseStyles.bodyWrapper}
-        onScroll={createScrollHandler('body')}
       >
         <div style={{ 
           width: totalWidth ? `${totalWidth}px` : '100%',
@@ -316,7 +275,6 @@ export function VirtualizationTable<T>({
             ...baseStyles.footerWrapper,
             ...scrollStyles.horizontalScroll
           }}
-          onScroll={createScrollHandler('footer')}
         >
           <div style={{
             ...baseStyles.gridContainer,

@@ -3,7 +3,8 @@ import React, {
   useRef, 
   useState,
   useLayoutEffect,
-  CSSProperties
+  CSSProperties,
+  useEffect
 } from 'react';
 import { VirtualizationGridProps } from './Grid.types';
 
@@ -111,6 +112,15 @@ export function VirtualizationGrid({
     height: '100%',
     ...style
   };
+
+  useEffect(() => {
+    const containerEl = containerRef.current;
+    containerEl?.addEventListener('scroll', handleScroll);
+
+    return () => {
+      containerEl?.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll]);
 
   return (
     <div

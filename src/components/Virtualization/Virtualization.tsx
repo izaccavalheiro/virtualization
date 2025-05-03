@@ -3,26 +3,10 @@ import React, {
   useRef, 
   useState,
   ReactNode,
-  CSSProperties
+  CSSProperties,
+  useEffect
 } from 'react';
 import { VirtualizationProps } from './Virtualization.types';
-
-const useIsomorphicLayoutEffect = 
-  typeof window !== 'undefined' && typeof window.document !== 'undefined'
-    ? React.useLayoutEffect
-    : React.useEffect;
-
-const useStableCallback = <T extends (...args: any[]) => any>(callback: T): T => {
-  const ref = useRef<T>(callback);
-  
-  useIsomorphicLayoutEffect(() => {
-    ref.current = callback;
-  });
-  
-  return useCallback((...args: Parameters<T>): ReturnType<T> => {
-    return ref.current(...args);
-  }, []) as T;
-};
 
 export function Virtualization({ 
   items, 
@@ -49,11 +33,11 @@ export function Virtualization({
   const scrollingDirection = useRef<'up' | 'down'>('down');
   const positionsMap = useRef(new Map<number, number>());
 
-  const getItemHeight = useStableCallback((index: number) => 
+  const getItemHeight = useCallback((index: number) => 
     heightsMap.current.get(index) || estimatedItemHeight
-  );
+  , []);
 
-  const calculatePositions = useStableCallback(() => {
+  const calculatePositions = useCallback(() => {
     let currentPosition = 0;
     positionsMap.current.clear();
     
@@ -63,9 +47,9 @@ export function Virtualization({
     }
     
     return currentPosition;
-  });
+  }, []);
 
-  const measureItem = useStableCallback((index: number, element: HTMLDivElement | null) => {
+  const measureItem = useCallback((index: number, element: HTMLDivElement | null) => {
     if (!element) return;
     
     const height = element.getBoundingClientRect().height;
@@ -75,9 +59,9 @@ export function Virtualization({
       const totalHeight = calculatePositions();
       setTotalHeight(totalHeight);
     }
-  });
+  }, []);
 
-  const findIndexForPosition = useStableCallback((position: number) => {
+  const findIndexForPosition = useCallback((position: number) => {
     let low = 0;
     let high = items.length - 1;
 
@@ -98,30 +82,24 @@ export function Virtualization({
     }
 
     return 0;
-  });
+  }, []);
 
-  const updateRenderRange = useStableCallback(() => {
+  const updateRenderRange = useCallback(() => {
     if (!containerRef.current) return;
 
-    const containerElement = containerRef.current;
-    const scrollTop = containerElement.scrollTop;
-    const viewportHeight = containerElement.clientHeight;
-    const scrollBottom = scrollTop + viewportHeight;
-    
-    scrollingDirection.current = scrollTop > previousScrollTop.current ? 'down' : 'up';
-    previousScrollTop.current = scrollTop;
+    scrollingDirection.current = containerRef.current.scrollTop > previousScrollTop.current ? 'down' : 'up';
+    previousScrollTop.current = containerRef.current.scrollTop;
 
-    const distanceFromBottom = totalHeight - scrollBottom;
-    const isNearBottom = distanceFromBottom < viewportHeight * 1.5;
-
-    const baseBuffer = viewportHeight;
+    const distanceFromBottom = totalHeight - (containerRef.current.scrollTop + containerRef.current.clientHeight);
+    const isNearBottom = distanceFromBottom < containerRef.current.clientHeight * 1.5;
+    const baseBuffer = containerRef.current.clientHeight;
     const topBuffer = scrollingDirection.current === 'up' ? baseBuffer * 1.5 : baseBuffer;
-    const bottomBuffer = isNearBottom ? viewportHeight * 2 : baseBuffer;
+    const bottomBuffer = isNearBottom ? containerRef.current.clientHeight * 2 : baseBuffer;
 
-    const startIndex = Math.max(0, findIndexForPosition(scrollTop - topBuffer));
+    const startIndex = Math.max(0, findIndexForPosition(containerRef.current.scrollTop - topBuffer));
     let endIndex = Math.min(
       items.length - 1,
-      findIndexForPosition(scrollBottom + bottomBuffer)
+      findIndexForPosition((containerRef.current.scrollTop + containerRef.current.clientHeight) + bottomBuffer)
     );
 
     if (isNearBottom) {
@@ -136,13 +114,13 @@ export function Virtualization({
       start: startIndex,
       end: endIndex + overscanCount
     });
-  });
+  }, []);
 
   const handleScroll = () => {
     requestAnimationFrame(updateRenderRange);
   };
 
-  useIsomorphicLayoutEffect(() => {
+  useEffect(() => {
     heightsMap.current.clear();
     calculatePositions();
     updateRenderRange();
@@ -151,10 +129,10 @@ export function Virtualization({
   const visibleItems = items.slice(renderRange.start, renderRange.end + 1);
   const topPadding = positionsMap.current.get(renderRange.start) || 0;
 
-  const renderItem = useStableCallback((item: any, index: number) => {
+  const renderItem = useCallback((item: any, index: number) => {
     try {
       if (typeof item === 'string') {
-        return <div key={`string-${renderRange.start + index}`} dangerouslySetInnerHTML={{ __html: item }} />;
+        return <div key={`string-${renderRange.start + index}`} dangerouslySetInnerHTML={{ __html: item }} data-testid={`item-${index}`} />;
       }
 
       if (React.isValidElement(item)) {
@@ -176,12 +154,12 @@ export function Virtualization({
         </React.Fragment>;
       }
 
-      return <div key={`default-${renderRange.start + index}`}>{String(item)}</div>;
+      return <div key={`default-${renderRange.start + index}`} data-testid={`item-${index}`}>{String(item)}</div>;
     } catch (error) {
       console.error('Error rendering virtualization item:', error);
       return <div key={`error-${renderRange.start + index}`}>Render Error</div>;
     }
-  });
+  }, []);
 
   const containerStyle: CSSProperties = {
     overflow: 'auto',
