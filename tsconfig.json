@@ -17,9 +17,9 @@
     "noFallthroughCasesInSwitch": true,
     "declaration": true,
     "declarationDir": "dist",
-    "emitDeclarationOnly": true,
+    "esModuleInterop": true,
     "outDir": "dist"
   },
-  "include": ["src"],
+  "include": ["src", "scripts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

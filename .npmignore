@@ -1,0 +1,37 @@
+# Source files
+src/
+
+# Config files
+.eslintrc
+.prettierrc
+jest.config.js
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+
+# Scripts
+scripts/
+
+# Development files
+example/
+public/
+*.log
+.github/
+coverage/
+stats.html
+
+# Editor directories
+.idea/
+.vscode/
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/__tests__/
+**/__mocks__/
+
+# Misc
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
