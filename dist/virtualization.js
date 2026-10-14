@@ -1,150 +1,160 @@
-import r, { useRef as S, useState as T, useCallback as E, useLayoutEffect as Z, useEffect as B } from "react";
-function nt({
-  dimensions: a,
-  estimatedColumnWidth: b = 100,
-  estimatedRowHeight: m = 50,
-  overscanCount: W = 2,
-  renderCell: F,
-  className: C = "",
-  style: P,
-  cellClassName: V = "",
-  cellStyle: i
+import e, { useRef as v, useState as C, useCallback as E, useLayoutEffect as rt, useEffect as x } from "react";
+function lt({
+  dimensions: d,
+  estimatedColumnWidth: S = 100,
+  estimatedRowHeight: p = 50,
+  overscanCount: b = 2,
+  renderCell: q,
+  className: z = "",
+  style: O,
+  cellClassName: B = "",
+  cellStyle: u
 }) {
-  const v = S(null), [l, w] = T({
+  const y = v(null), [c, M] = C({
     rowStart: 0,
     rowEnd: 10,
     columnStart: 0,
     columnEnd: 10
-  }), M = E(() => {
-    if (!v.current) return;
+  }), L = E(() => {
+    if (!y.current) return;
     const {
       scrollTop: o,
-      scrollLeft: f,
-      clientHeight: u,
-      clientWidth: I
-    } = v.current, k = Math.floor(o / m), A = Math.min(
-      a.rowCount - 1,
-      Math.ceil((o + u) / m)
-    ), L = Math.floor(f / b), t = Math.min(
-      a.columnCount - 1,
-      Math.ceil((f + I) / b)
+      scrollLeft: m,
+      clientHeight: a,
+      clientWidth: W
+    } = y.current, $ = Math.floor(o / p), I = Math.min(
+      d.rowCount - 1,
+      Math.ceil((o + a) / p)
+    ), T = Math.floor(m / S), D = Math.min(
+      d.columnCount - 1,
+      Math.ceil((m + W) / S)
     );
-    w({
-      rowStart: Math.max(0, k - W),
-      rowEnd: Math.min(a.rowCount - 1, A + W),
-      columnStart: Math.max(0, L - W),
-      columnEnd: Math.min(a.columnCount - 1, t + W)
+    M({
+      rowStart: Math.max(0, $ - b),
+      rowEnd: Math.min(d.rowCount - 1, I + b),
+      columnStart: Math.max(0, T - b),
+      columnEnd: Math.min(d.columnCount - 1, D + b)
     });
-  }, [a, m, b, W]), R = E(() => {
-    requestAnimationFrame(M);
-  }, [M]);
-  Z(() => {
-    M();
-  }, [M]);
-  const $ = a.rowCount * m, x = a.columnCount * b, y = l.rowStart * m, z = l.columnStart * b, d = [];
-  for (let o = l.rowStart; o <= l.rowEnd; o++) {
-    const f = [];
-    for (let u = l.columnStart; u <= l.columnEnd; u++)
-      f.push(
-        /* @__PURE__ */ r.createElement(
+  }, [d, p, S, b]), R = E(() => {
+    requestAnimationFrame(L);
+  }, [L]);
+  rt(() => {
+    L();
+  }, [L]);
+  const F = d.rowCount * p, P = d.columnCount * S, w = c.rowStart * p, k = c.columnStart * S, s = [];
+  for (let o = c.rowStart; o <= c.rowEnd; o++) {
+    const m = [];
+    for (let a = c.columnStart; a <= c.columnEnd; a++)
+      m.push(
+        /* @__PURE__ */ e.createElement(
           "div",
           {
-            key: `${o}-${u}`,
-            className: V,
+            key: `${o}-${a}`,
+            className: B,
             style: {
-              ...i,
+              ...u,
               display: "inline-block",
-              width: b,
-              height: m,
+              width: S,
+              height: p,
               verticalAlign: "top"
             }
           },
-          F(o, u)
+          q(o, a)
         )
       );
-    d.push(
-      /* @__PURE__ */ r.createElement(
+    s.push(
+      /* @__PURE__ */ e.createElement(
         "div",
         {
           key: o,
           style: {
-            height: m,
+            height: p,
             whiteSpace: "nowrap"
           }
         },
-        f
+        m
       )
     );
   }
-  const H = {
+  const V = {
     overflow: "auto",
     width: "100%",
     height: "100%",
-    ...P
+    ...O
   };
-  return B(() => {
-    const o = v.current;
+  return x(() => {
+    const o = y.current;
     return o == null || o.addEventListener("scroll", R), () => {
       o == null || o.removeEventListener("scroll", R);
     };
-  }, [R]), /* @__PURE__ */ r.createElement(
+  }, [R]), /* @__PURE__ */ e.createElement(
     "div",
     {
-      ref: v,
-      className: C,
-      style: H,
+      ref: y,
+      className: z,
+      style: V,
       onScroll: R
     },
-    /* @__PURE__ */ r.createElement("div", { style: { height: $, width: x } }, /* @__PURE__ */ r.createElement("div", { style: { paddingTop: y, paddingLeft: z } }, d))
+    /* @__PURE__ */ e.createElement("div", { style: { height: F, width: P } }, /* @__PURE__ */ e.createElement("div", { style: { paddingTop: w, paddingLeft: k } }, s))
   );
 }
-function ot({
-  data: a,
-  Header: b,
-  Footer: m,
-  Row: W,
-  style: F = {},
-  headerStyle: C = {},
-  footerStyle: P = {},
-  rowStyle: V = {},
-  tableHeight: i = "400px",
-  estimatedRowHeight: v = 40,
-  overscanCount: l = 5,
-  columnWidths: w,
-  footerDistributed: M = !0,
+function st({
+  data: d,
+  Header: S,
+  Footer: p,
+  Row: b,
+  style: q = {},
+  headerStyle: z = {},
+  footerStyle: O = {},
+  rowStyle: B = {},
+  tableHeight: u = "400px",
+  estimatedRowHeight: y = 40,
+  overscanCount: c = 5,
+  columnWidths: M,
+  footerDistributed: L = !0,
   defaultSortColumn: R = "",
-  defaultSortDirection: $ = null
+  defaultSortDirection: F = null
 }) {
-  const [x] = T(0), [y, z] = T(w || []), [d, H] = T({
+  const [P] = C(0), [w, k] = C(M || []), [s, V] = C({
     column: R,
-    direction: $
-  }), o = S(null), f = S(null), u = S(null), I = S(null), k = E(() => {
-    var O, J, K, Q;
-    if (!f.current || !o.current || !w)
+    direction: F
+  }), o = v(null), m = v(null), a = v(null), W = v(null), $ = M ? JSON.stringify(M) : "", I = e.useMemo(
+    () => $ ? JSON.parse($) : void 0,
+    [$]
+  ), T = E(() => {
+    var Q, U, X, Z;
+    const n = (N) => {
+      k((A) => A.join(" ") === N.join(" ") ? A : N);
+    };
+    if (!I) {
+      n([]);
       return;
-    const n = o.current.getBoundingClientRect().width, c = ((O = u.current) == null ? void 0 : O.offsetWidth) && ((J = u.current) == null ? void 0 : J.clientWidth) && ((K = u.current) == null ? void 0 : K.offsetWidth) - ((Q = u.current) == null ? void 0 : Q.clientWidth) || 0, h = n - c, D = w.reduce((_, j) => _ + parseInt(j, 10), 0);
-    if (h > D) {
-      const _ = h / D, j = w.map((X) => `${Math.floor(parseInt(X, 10) * _)}px`);
-      z(j);
+    }
+    if (!m.current || !o.current)
+      return;
+    const l = o.current.getBoundingClientRect().width, h = ((Q = a.current) == null ? void 0 : Q.offsetWidth) && ((U = a.current) == null ? void 0 : U.clientWidth) && ((X = a.current) == null ? void 0 : X.offsetWidth) - ((Z = a.current) == null ? void 0 : Z.clientWidth) || 0, _ = l - h, G = I.reduce((N, A) => N + parseInt(A, 10), 0);
+    if (_ > G) {
+      const N = _ / G, A = I.map((et) => `${Math.floor(parseInt(et, 10) * N)}px`);
+      n(A);
     } else
-      z(w);
-  }, []);
-  B(() => {
+      n(I);
+  }, [I]);
+  x(() => {
     const n = new ResizeObserver(() => {
       requestAnimationFrame(() => {
-        k();
+        T();
       });
     });
     return o.current && n.observe(o.current), () => {
       n.disconnect();
     };
-  }, [k]), B(() => {
+  }, [T]), x(() => {
     requestAnimationFrame(() => {
-      k();
+      T();
     });
-  }, [k]);
-  const A = y.length > 0 ? y.join(" ") : `repeat(${x}, 1fr)`, L = y.reduce((n, c) => {
-    const h = parseInt(c);
+  }, [T]);
+  const D = w.length > 0 ? w.join(" ") : `repeat(${P}, 1fr)`, H = w.reduce((n, l) => {
+    const h = parseInt(l);
     return n + (isNaN(h) ? 0 : h);
   }, 0), t = {
     container: {
@@ -154,7 +164,7 @@ function ot({
       width: "100%",
       height: "100%",
       overflow: "hidden",
-      ...F
+      ...q
     },
     headerWrapper: {
       position: "relative",
@@ -162,14 +172,14 @@ function ot({
       borderBottom: "1px solid #e2e8f0",
       backgroundColor: "#fff",
       width: "100%",
-      ...C
+      ...z
     },
     bodyWrapper: {
       position: "relative",
-      height: i,
+      height: u,
       overflow: "auto",
       width: "100%",
-      ...V
+      ...B
     },
     footerWrapper: {
       position: "relative",
@@ -177,209 +187,208 @@ function ot({
       borderTop: "1px solid #e2e8f0",
       backgroundColor: "#fff",
       width: "100%",
-      ...P
+      ...O
     },
     gridContainer: {
       display: "grid",
-      gridTemplateColumns: A,
-      width: o.current && w ? Math.max(
+      gridTemplateColumns: D,
+      width: o.current && M ? Math.max(
         o.current.getBoundingClientRect().width,
-        w.reduce((n, c) => n + parseInt(c, 10), 0)
+        M.reduce((n, l) => n + parseInt(l, 10), 0)
       ) + "px" : "100%"
     }
-  }, [e, s] = T(0), p = E((n) => {
-    s(n), requestAnimationFrame(() => {
-      f.current && (f.current.scrollLeft = n), u.current && (u.current.scrollLeft = n), I.current && (I.current.scrollLeft = n);
+  }, [r, i] = C(0), f = E((n) => {
+    i(n), requestAnimationFrame(() => {
+      m.current && (m.current.scrollLeft = n), a.current && (a.current.scrollLeft = n), W.current && (W.current.scrollLeft = n);
     });
   }, []), g = E((n) => {
-    const c = n.target.scrollLeft;
-    c !== e && p(c);
-  }, [e, p]);
-  B(() => {
-    const n = f.current, c = u.current, h = I.current;
-    return n == null || n.addEventListener("scroll", g), c == null || c.addEventListener("scroll", g), h == null || h.addEventListener("scroll", g), () => {
-      n == null || n.removeEventListener("scroll", g), c == null || c.removeEventListener("scroll", g), h == null || h.removeEventListener("scroll", g);
+    const l = n.target.scrollLeft;
+    l !== r && f(l);
+  }, [r, f]);
+  x(() => {
+    const n = m.current, l = a.current, h = W.current;
+    return n == null || n.addEventListener("scroll", g), l == null || l.addEventListener("scroll", g), h == null || h.addEventListener("scroll", g), () => {
+      n == null || n.removeEventListener("scroll", g), l == null || l.removeEventListener("scroll", g), h == null || h.removeEventListener("scroll", g);
     };
   }, [g]);
-  const q = (n) => {
-    H((c) => ({
+  const j = (n) => {
+    V((l) => ({
       column: n,
-      direction: c.column === n ? c.direction === "asc" ? "desc" : c.direction === "desc" ? null : "asc" : "asc"
+      direction: l.column === n ? l.direction === "asc" ? "desc" : l.direction === "desc" ? null : "asc" : "asc"
     }));
-  }, U = r.useMemo(() => !d.column || !d.direction ? a : [...a].sort((n, c) => {
-    const h = n[d.column], D = c[d.column];
-    if (h === D) return 0;
-    const O = h < D ? -1 : 1;
-    return d.direction === "asc" ? O : -O;
-  }), [a, d.column, d.direction]).map((n) => ({
-    component: ({ index: c }) => /* @__PURE__ */ r.createElement("div", { style: t.gridContainer }, /* @__PURE__ */ r.createElement(W, { item: n, index: c }))
-  })), G = S();
-  B(() => () => {
-    G.current && window.clearTimeout(G.current);
+  }, tt = e.useMemo(() => !s.column || !s.direction ? d : [...d].sort((n, l) => {
+    const h = n[s.column], _ = l[s.column];
+    if (h === _) return 0;
+    const G = h < _ ? -1 : 1;
+    return s.direction === "asc" ? G : -G;
+  }), [d, s.column, s.direction]).map((n) => ({
+    component: ({ index: l }) => /* @__PURE__ */ e.createElement("div", { style: t.gridContainer }, /* @__PURE__ */ e.createElement(b, { item: n, index: l }))
+  })), K = v();
+  x(() => () => {
+    K.current && window.clearTimeout(K.current);
   }, []);
   const Y = {
     horizontalScroll: {
       overflowY: "hidden",
       scrollbarWidth: "none",
-      msOverflowStyle: "none",
-      "&::-webkit-scrollbar": {
-        display: "none"
-      }
+      msOverflowStyle: "none"
     }
   };
-  return /* @__PURE__ */ r.createElement("div", { ref: o, style: t.container }, /* @__PURE__ */ r.createElement(
+  return /* @__PURE__ */ e.createElement("div", { ref: o, style: t.container }, /* @__PURE__ */ e.createElement(
     "div",
     {
-      ref: f,
+      ref: m,
       style: {
         ...t.headerWrapper,
         ...Y.horizontalScroll
       }
     },
-    /* @__PURE__ */ r.createElement("div", { style: {
+    /* @__PURE__ */ e.createElement("div", { style: {
       ...t.gridContainer,
-      minWidth: L || void 0
-    } }, /* @__PURE__ */ r.createElement(b, { onSort: q, sortState: d }))
-  ), /* @__PURE__ */ r.createElement(
+      minWidth: H || void 0
+    } }, /* @__PURE__ */ e.createElement(S, { onSort: j, sortState: s }))
+  ), /* @__PURE__ */ e.createElement(
     "div",
     {
-      ref: u,
+      ref: a,
       style: t.bodyWrapper
     },
-    /* @__PURE__ */ r.createElement("div", { style: {
-      width: L ? `${L}px` : "100%",
+    /* @__PURE__ */ e.createElement("div", { style: {
+      width: H ? `${H}px` : "100%",
       minWidth: "100%"
-    } }, /* @__PURE__ */ r.createElement(
-      tt,
+    } }, /* @__PURE__ */ e.createElement(
+      nt,
       {
-        items: U,
-        estimatedItemHeight: v,
-        overscanCount: l,
+        items: tt,
+        estimatedItemHeight: y,
+        overscanCount: c,
         style: {
-          height: i,
+          height: u,
           width: "100%"
         }
       }
     ))
-  ), m && /* @__PURE__ */ r.createElement(
+  ), p && /* @__PURE__ */ e.createElement(
     "div",
     {
-      ref: I,
+      ref: W,
       style: {
         ...t.footerWrapper,
         ...Y.horizontalScroll
       }
     },
-    /* @__PURE__ */ r.createElement("div", { style: {
+    /* @__PURE__ */ e.createElement("div", { style: {
       ...t.gridContainer,
-      minWidth: L || void 0,
-      ...M ? { display: "block" } : {}
-    } }, /* @__PURE__ */ r.createElement(m, null))
+      minWidth: H || void 0,
+      ...L ? { display: "block" } : {}
+    } }, /* @__PURE__ */ e.createElement(p, null))
   ));
 }
-function tt({
-  items: a,
-  className: b = "",
-  itemClassName: m = "",
-  style: W,
-  itemStyle: F,
-  overscanCount: C = 5,
-  initialRenderCount: P = 20,
-  estimatedItemHeight: V = 100
+function nt({
+  items: d,
+  className: S = "",
+  itemClassName: p = "",
+  style: b,
+  itemStyle: q,
+  overscanCount: z = 5,
+  initialRenderCount: O = 20,
+  estimatedItemHeight: B = 100
 }) {
-  if (!r.useState)
+  if (!e.useState)
     throw new Error("React hooks are not available. Ensure you are using a compatible version of React.");
-  const i = S(null), v = S(/* @__PURE__ */ new Map()), [l, w] = T({
+  const u = v(null), y = v(/* @__PURE__ */ new Map()), [c, M] = C({
     start: 0,
-    end: P
-  }), [M, R] = T(0), $ = S(0), x = S("down"), y = S(/* @__PURE__ */ new Map()), z = E(
-    (t) => v.current.get(t) || V,
-    []
-  ), d = E(() => {
+    end: O
+  }), [L, R] = C(0), F = v(0), P = v("down"), w = v(/* @__PURE__ */ new Map()), k = v(0), s = d.length, V = E(
+    (t) => y.current.get(t) || B,
+    [B]
+  ), o = E(() => {
     let t = 0;
-    y.current.clear();
-    for (let e = 0; e < a.length; e++)
-      y.current.set(e, t), t += z(e);
-    return t;
-  }, []), H = E((t, e) => {
-    if (!e) return;
-    const s = e.getBoundingClientRect().height;
-    if (s > 0 && v.current.get(t) !== s) {
-      v.current.set(t, s);
-      const p = d();
-      R(p);
+    w.current.clear();
+    for (let r = 0; r < s; r++)
+      w.current.set(r, t), t += V(r);
+    return k.current = t, t;
+  }, [s, V]), m = E((t, r) => {
+    if (!r) return;
+    const i = r.getBoundingClientRect().height;
+    if (i > 0 && y.current.get(t) !== i) {
+      y.current.set(t, i);
+      const f = o();
+      R(f);
     }
-  }, []), o = E((t) => {
-    let e = 0, s = a.length - 1;
-    for (; e <= s; ) {
-      const p = Math.floor((e + s) / 2), g = y.current.get(p) || 0, q = y.current.get(p + 1) || M;
-      if (t >= g && t < q)
-        return p;
-      t < g ? s = p - 1 : e = p + 1;
+  }, [o]), a = E((t) => {
+    let r = 0, i = s - 1;
+    for (; r <= i; ) {
+      const f = Math.floor((r + i) / 2), g = w.current.get(f) || 0, j = w.current.get(f + 1) || k.current;
+      if (t >= g && t < j)
+        return f;
+      t < g ? i = f - 1 : r = f + 1;
     }
     return 0;
-  }, []), f = E(() => {
-    if (!i.current) return;
-    x.current = i.current.scrollTop > $.current ? "down" : "up", $.current = i.current.scrollTop;
-    const e = M - (i.current.scrollTop + i.current.clientHeight) < i.current.clientHeight * 1.5, s = i.current.clientHeight, p = x.current === "up" ? s * 1.5 : s, g = e ? i.current.clientHeight * 2 : s, q = Math.max(0, o(i.current.scrollTop - p));
-    let N = Math.min(
-      a.length - 1,
-      o(i.current.scrollTop + i.current.clientHeight + g)
+  }, [s]), W = E(() => {
+    if (!u.current) return;
+    P.current = u.current.scrollTop > F.current ? "down" : "up", F.current = u.current.scrollTop;
+    const r = k.current - (u.current.scrollTop + u.current.clientHeight) < u.current.clientHeight * 1.5, i = u.current.clientHeight, f = P.current === "up" ? i * 1.5 : i, g = r ? u.current.clientHeight * 2 : i, j = Math.max(0, a(u.current.scrollTop - f));
+    let J = Math.min(
+      s - 1,
+      a(u.current.scrollTop + u.current.clientHeight + g)
     );
-    e && (N = a.length - 1), N > a.length - 4 && (N = a.length - 1), w({
-      start: q,
-      end: N + C
+    r && (J = s - 1), J > s - 4 && (J = s - 1), M({
+      start: j,
+      end: J + z
     });
-  }, []), u = () => {
-    requestAnimationFrame(f);
+  }, [s, a, z]), $ = () => {
+    requestAnimationFrame(W);
   };
-  B(() => {
-    v.current.clear(), d(), f();
-  }, [d, a, f]);
-  const I = a.slice(l.start, l.end + 1), k = y.current.get(l.start) || 0, A = E((t, e) => {
+  x(() => {
+    y.current.clear();
+  }, [d]), x(() => {
+    R(o()), W();
+  }, [o, d, W]);
+  const I = d.slice(c.start, c.end + 1), T = w.current.get(c.start) || 0, D = E((t, r) => {
     try {
       if (typeof t == "string")
-        return /* @__PURE__ */ r.createElement("div", { key: `string-${l.start + e}`, dangerouslySetInnerHTML: { __html: t }, "data-testid": `item-${e}` });
-      if (r.isValidElement(t))
-        return r.cloneElement(t, { key: `element-${l.start + e}` });
+        return /* @__PURE__ */ e.createElement("div", { key: `string-${c.start + r}`, dangerouslySetInnerHTML: { __html: t }, "data-testid": `item-${r}` });
+      if (e.isValidElement(t))
+        return e.cloneElement(t, { key: `element-${c.start + r}` });
       if (typeof t == "function") {
-        const s = t;
-        return /* @__PURE__ */ r.createElement(r.Fragment, { key: `func-${l.start + e}` }, s({ index: l.start + e }));
+        const i = t;
+        return /* @__PURE__ */ e.createElement(e.Fragment, { key: `func-${c.start + r}` }, i({ index: c.start + r }));
       }
       if (t && (t.render || t.component)) {
-        const s = t.render || t.component, p = t.props || {};
-        return /* @__PURE__ */ r.createElement(r.Fragment, { key: `complex-${l.start + e}` }, s({ ...p, index: l.start + e }));
+        const i = t.render || t.component, f = t.props || {};
+        return /* @__PURE__ */ e.createElement(e.Fragment, { key: `complex-${c.start + r}` }, i({ ...f, index: c.start + r }));
       }
-      return /* @__PURE__ */ r.createElement("div", { key: `default-${l.start + e}`, "data-testid": `item-${e}` }, String(t));
-    } catch (s) {
-      return console.error("Error rendering virtualization item:", s), /* @__PURE__ */ r.createElement("div", { key: `error-${l.start + e}` }, "Render Error");
+      return /* @__PURE__ */ e.createElement("div", { key: `default-${c.start + r}`, "data-testid": `item-${r}` }, String(t));
+    } catch (i) {
+      return console.error("Error rendering virtualization item:", i), /* @__PURE__ */ e.createElement("div", { key: `error-${c.start + r}` }, "Render Error");
     }
-  }, []), L = {
+  }, [c.start]), H = {
     overflow: "auto",
-    ...W
+    ...b
   };
-  return /* @__PURE__ */ r.createElement(
+  return /* @__PURE__ */ e.createElement(
     "div",
     {
-      ref: i,
-      className: b,
-      style: L,
-      onScroll: u
+      ref: u,
+      className: S,
+      style: H,
+      onScroll: $
     },
-    /* @__PURE__ */ r.createElement("div", { style: { height: M } }, /* @__PURE__ */ r.createElement("div", { style: { paddingTop: k } }, I.map((t, e) => /* @__PURE__ */ r.createElement(
+    /* @__PURE__ */ e.createElement("div", { style: { height: L } }, /* @__PURE__ */ e.createElement("div", { style: { paddingTop: T } }, I.map((t, r) => /* @__PURE__ */ e.createElement(
       "div",
       {
-        key: l.start + e,
-        ref: (s) => H(l.start + e, s),
-        className: m,
-        style: F
+        key: c.start + r,
+        ref: (i) => m(c.start + r, i),
+        className: p,
+        style: q
       },
-      A(t, e)
+      D(t, r)
     ))))
   );
 }
 export {
-  tt as Virtualization,
-  nt as VirtualizationGrid,
-  ot as VirtualizationTable
+  nt as Virtualization,
+  lt as VirtualizationGrid,
+  st as VirtualizationTable
 };

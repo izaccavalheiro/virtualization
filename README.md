@@ -162,8 +162,6 @@ Strings in `items` are injected as HTML via `dangerouslySetInnerHTML`. Never pas
 
 The following are known and tracked. They are planned as focused fixes; see [AGENTS.md](AGENTS.md#known-issues-do-not-fix-incidentally).
 
-- `Virtualization` can compute wrong ranges if the **length** of `items` changes after mount. Remount with a `key` (for example `key={items.length}`) as a workaround.
-- `VirtualizationTable` reads `columnWidths` only on mount and resize.
 - Grid cells all have the same size. Use `Virtualization` or `VirtualizationTable` when sizes vary.
 - Prop types are not exported yet. Use `React.ComponentProps<typeof Virtualization>`.
 

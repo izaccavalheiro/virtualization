@@ -32,22 +32,26 @@ export function Virtualization({
   const previousScrollTop = useRef(0);
   const scrollingDirection = useRef<'up' | 'down'>('down');
   const positionsMap = useRef(new Map<number, number>());
+  // Mirrors the latest calculatePositions() result; state lags a render behind.
+  const totalHeightRef = useRef(0);
+  const itemCount = items.length;
 
-  const getItemHeight = useCallback((index: number) => 
+  const getItemHeight = useCallback((index: number) =>
     heightsMap.current.get(index) || estimatedItemHeight
-  , []);
+  , [estimatedItemHeight]);
 
   const calculatePositions = useCallback(() => {
     let currentPosition = 0;
     positionsMap.current.clear();
-    
-    for (let i = 0; i < items.length; i++) {
+
+    for (let i = 0; i < itemCount; i++) {
       positionsMap.current.set(i, currentPosition);
       currentPosition += getItemHeight(i);
     }
-    
+
+    totalHeightRef.current = currentPosition;
     return currentPosition;
-  }, []);
+  }, [itemCount, getItemHeight]);
 
   const measureItem = useCallback((index: number, element: HTMLDivElement | null) => {
     if (!element) return;
@@ -59,16 +63,16 @@ export function Virtualization({
       const totalHeight = calculatePositions();
       setTotalHeight(totalHeight);
     }
-  }, []);
+  }, [calculatePositions]);
 
   const findIndexForPosition = useCallback((position: number) => {
     let low = 0;
-    let high = items.length - 1;
+    let high = itemCount - 1;
 
     while (low <= high) {
       const mid = Math.floor((low + high) / 2);
       const itemPos = positionsMap.current.get(mid) || 0;
-      const nextPos = positionsMap.current.get(mid + 1) || totalHeight;
+      const nextPos = positionsMap.current.get(mid + 1) || totalHeightRef.current;
 
       if (position >= itemPos && position < nextPos) {
         return mid;
@@ -82,7 +86,7 @@ export function Virtualization({
     }
 
     return 0;
-  }, []);
+  }, [itemCount]);
 
   const updateRenderRange = useCallback(() => {
     if (!containerRef.current) return;
@@ -90,7 +94,7 @@ export function Virtualization({
     scrollingDirection.current = containerRef.current.scrollTop > previousScrollTop.current ? 'down' : 'up';
     previousScrollTop.current = containerRef.current.scrollTop;
 
-    const distanceFromBottom = totalHeight - (containerRef.current.scrollTop + containerRef.current.clientHeight);
+    const distanceFromBottom = totalHeightRef.current - (containerRef.current.scrollTop + containerRef.current.clientHeight);
     const isNearBottom = distanceFromBottom < containerRef.current.clientHeight * 1.5;
     const baseBuffer = containerRef.current.clientHeight;
     const topBuffer = scrollingDirection.current === 'up' ? baseBuffer * 1.5 : baseBuffer;
@@ -98,31 +102,35 @@ export function Virtualization({
 
     const startIndex = Math.max(0, findIndexForPosition(containerRef.current.scrollTop - topBuffer));
     let endIndex = Math.min(
-      items.length - 1,
+      itemCount - 1,
       findIndexForPosition((containerRef.current.scrollTop + containerRef.current.clientHeight) + bottomBuffer)
     );
 
     if (isNearBottom) {
-      endIndex = items.length - 1;
+      endIndex = itemCount - 1;
     }
 
-    if (endIndex > items.length - 4) {
-      endIndex = items.length - 1;
+    if (endIndex > itemCount - 4) {
+      endIndex = itemCount - 1;
     }
 
     setRenderRange({
       start: startIndex,
       end: endIndex + overscanCount
     });
-  }, []);
+  }, [itemCount, findIndexForPosition, overscanCount]);
 
   const handleScroll = () => {
     requestAnimationFrame(updateRenderRange);
   };
 
+  // Measured heights are keyed by index, so they are stale once the items change.
   useEffect(() => {
     heightsMap.current.clear();
-    calculatePositions();
+  }, [items]);
+
+  useEffect(() => {
+    setTotalHeight(calculatePositions());
     updateRenderRange();
   }, [calculatePositions, items, updateRenderRange]);
 
@@ -159,7 +167,7 @@ export function Virtualization({
       console.error('Error rendering virtualization item:', error);
       return <div key={`error-${renderRange.start + index}`}>Render Error</div>;
     }
-  }, []);
+  }, [renderRange.start]);
 
   const containerStyle: CSSProperties = {
     overflow: 'auto',

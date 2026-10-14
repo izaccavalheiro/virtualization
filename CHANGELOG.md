@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+No public API changes. Component props, defaults and the `peerDependencies` range are unchanged.
+
+### Fixed
+
+- `Virtualization` now handles `items` whose length changes after mount. Before this fix, its internal helpers kept the first render's item count, so items added later were never rendered and removing items left the scroll height too tall. The `key={items.length}` remount workaround is no longer needed.
+- `Virtualization` now actually virtualizes. A stale total height made it treat every scroll position as "near the bottom", so it rendered every item from the scroll position to the end of the list. It now renders only the items near the viewport. **Heads-up:** items far below the viewport are no longer in the DOM. If your tests or features (for example browser find-in-page) relied on them being there, they will notice.
+- `Virtualization` now passes the correct absolute `index` to function items and `{ component | render }` items after scrolling. Previously the index was relative to the first rendered item. This also fixes the `index` that `VirtualizationTable` passes to `Row`.
+- `Virtualization` now picks up changes to `estimatedItemHeight` and `overscanCount` after mount.
+- `VirtualizationTable` now applies changes to the `columnWidths` prop after mount, including removing it.
+- `VirtualizationTable` no longer puts an `&::-webkit-scrollbar` key in an inline style. React ignored it, so nothing changes visually.
+
 ## [1.0.17] - 2026-10-14
 
 First release since 1.0.15. Version 1.0.16 was tagged but never published to npm.

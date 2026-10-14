@@ -31,8 +31,24 @@ export function VirtualizationTable<T>({
   const bodyWrapperRef = useRef<HTMLDivElement>(null);
   const footerWrapperRef = useRef<HTMLDivElement>(null);
 
+  // Keyed by value so an inline `columnWidths={[...]}` array does not recalculate on every render.
+  const columnWidthsKey = initialColumnWidths ? JSON.stringify(initialColumnWidths) : '';
+  const specifiedColumnWidths = React.useMemo<string[] | undefined>(
+    () => (columnWidthsKey ? JSON.parse(columnWidthsKey) : undefined),
+    [columnWidthsKey]
+  );
+
   const calculateColumnWidths = useCallback(() => {
-    if (!headerWrapperRef.current || !containerRef.current || !initialColumnWidths) {
+    const applyColumnWidths = (next: string[]) => {
+      setColumnWidths(prev => (prev.join(' ') === next.join(' ') ? prev : next));
+    };
+
+    if (!specifiedColumnWidths) {
+      applyColumnWidths([]);
+      return;
+    }
+
+    if (!headerWrapperRef.current || !containerRef.current) {
       return;
     }
 
@@ -40,21 +56,21 @@ export function VirtualizationTable<T>({
     const scrollbarWidth = (bodyWrapperRef.current?.offsetWidth && bodyWrapperRef.current?.clientWidth && (bodyWrapperRef.current?.offsetWidth - bodyWrapperRef.current?.clientWidth)) || 0;
     const availableWidth = containerWidth - scrollbarWidth;
 
-    const totalSpecifiedWidth = initialColumnWidths.reduce((sum, width) => {
+    const totalSpecifiedWidth = specifiedColumnWidths.reduce((sum, width) => {
       return sum + parseInt(width, 10);
     }, 0);
 
     if (availableWidth > totalSpecifiedWidth) {
       const scale = availableWidth / totalSpecifiedWidth;
-      const newColumnWidths = initialColumnWidths.map(width => {
+      const newColumnWidths = specifiedColumnWidths.map(width => {
         const scaledWidth = Math.floor(parseInt(width, 10) * scale);
         return `${scaledWidth}px`;
       });
-      setColumnWidths(newColumnWidths);
+      applyColumnWidths(newColumnWidths);
     } else {
-      setColumnWidths(initialColumnWidths);
+      applyColumnWidths(specifiedColumnWidths);
     }
-  }, []);
+  }, [specifiedColumnWidths]);
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
@@ -224,10 +240,7 @@ export function VirtualizationTable<T>({
     horizontalScroll: {
       overflowY: 'hidden' as const,
       scrollbarWidth: 'none' as const,
-      msOverflowStyle: 'none' as const,
-      '&::-webkit-scrollbar': {
-        display: 'none'
-      }
+      msOverflowStyle: 'none' as const
     }
   };
 
