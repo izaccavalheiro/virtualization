@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.17] - 2026-10-14
+
+First release since 1.0.15. Version 1.0.16 was tagged but never published to npm.
+
 No public API changes. Component props, defaults, rendered output and the `peerDependencies` range are unchanged.
 
 ### Fixed
@@ -28,5 +32,6 @@ No public API changes. Component props, defaults, rendered output and the `peerD
 
 Earlier releases (1.0.0 to 1.0.15) predate this changelog; see the [commit history](https://github.com/izaccavalheiro/virtualization/commits/main).
 
-[Unreleased]: https://github.com/izaccavalheiro/virtualization/commits/main
+[Unreleased]: https://github.com/izaccavalheiro/virtualization/compare/v1.0.17...HEAD
+[1.0.17]: https://github.com/izaccavalheiro/virtualization/releases/tag/v1.0.17
 [1.0.15]: https://www.npmjs.com/package/simple-virtualization/v/1.0.15
