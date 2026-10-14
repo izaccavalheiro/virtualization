@@ -1,4 +1,4 @@
-# Simple Virtualization for React
+# simple-virtualization
 
 [![CI](https://github.com/izaccavalheiro/virtualization/actions/workflows/ci.yml/badge.svg)](https://github.com/izaccavalheiro/virtualization/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/simple-virtualization.svg)](https://www.npmjs.com/package/simple-virtualization)
@@ -6,396 +6,179 @@
 [![types included](https://img.shields.io/npm/types/simple-virtualization)](https://www.npmjs.com/package/simple-virtualization)
 [![license: MIT](https://img.shields.io/npm/l/simple-virtualization.svg)](LICENSE)
 
-## Overview
+Small, dependency-free React components for rendering large lists, tables and grids. Only the rows and cells in view are mounted.
 
-This package provides three powerful virtualization components for React applications:
-1. `Virtualization`: A core component for rendering large lists efficiently
-2. `VirtualizationTable`: A specialized component for handling large datasets in tabular format
-3. `VirtualizationGrid`: A component for efficiently rendering large two-dimensional grids
+- **Three components:** `Virtualization` (list with measured, variable heights), `VirtualizationTable` (sortable table) and `VirtualizationGrid` (2D grid).
+- **Zero runtime dependencies.** Under 5 KiB gzipped, with a size budget enforced in CI.
+- **Modern packaging:** ESM and CommonJS builds, TypeScript types for both, `sideEffects: false` for tree-shaking. Checked with [publint](https://publint.dev) and [Are the Types Wrong?](https://arethetypeswrong.github.io).
+- **Supply chain:** releases are published from CI with [npm provenance](https://docs.npmjs.com/generating-provenance-statements).
+- **Styling:** inline styles plus `className`/`style` props. No CSS to import, and it works with Tailwind, CSS Modules or any CSS-in-JS.
 
-All components are designed to optimize performance by rendering only the visible portions of your content.
-
-## Features
-
-### Core Virtualization Features
-- Dynamic viewport rendering
-- Variable height item support
-- Efficient scroll handling with requestAnimationFrame
-- Support for multiple content types:
-  - String content
-  - React Elements
-  - Function components
-  - Complex components with props
-- Customizable overscan (buffer) zones
-- Automatic height calculation and caching
-- Smooth scrolling optimization
-- Isomorphic layout effect support
-- Error boundary protection for item rendering
-- Compatible with older React versions via polyfills
-- Binary search for efficient item positioning
-- Scroll direction-aware rendering optimization
-
-### VirtualizationTable Features
-- Sortable columns with multiple states (asc/desc/none)
-- Customizable header, row, and footer components
-- Synchronized horizontal scrolling across sections
-- Dynamic column width calculations
-- Responsive design support
-- Custom styling for all table sections
-- Row virtualization for optimal performance
-- Support for distributed footer layouts
-- Built-in ResizeObserver integration
-- TypeScript support with comprehensive types
-- Smooth scroll synchronization between sections
-- Advanced sorting with null state support
-- Optimized scroll event handling
-- Automatic column width distribution
-
-### VirtualizationGrid Features
-- Efficient rendering of large two-dimensional data sets
-- Independent row and column virtualization
-- Customizable cell dimensions
-- Dynamic viewport calculation
-- Optimized scroll performance
-- Flexible cell rendering API
-- Customizable styling for grid and cells
-- Built-in overscan support for smooth scrolling
-- Efficient memory usage for large datasets
-- Responsive to container size changes
-
-## Installation
+## Install
 
 ```bash
 npm install simple-virtualization
-# or
-yarn add simple-virtualization
 ```
 
-## Example App
+You need `react` and `react-dom` 18 (`^18.0.0`) installed as peer dependencies.
 
-The package includes a comprehensive example application that demonstrates all three virtualization components. The example app showcases various implementation patterns and features:
+## Quick start
 
-### Virtualization Component Example
-- Handles mixed content types including:
-  - HTML strings
-  - React components
-  - Functional components
-  - Component configurations with props
-- Demonstrates custom styling with CSS-in-JS
-- Shows proper component composition
-- Implements efficient content rendering strategies
-- Supports dynamic height calculations
-- Example items include various layouts:
-  - Simple text content
-  - Complex grid layouts
-  - Image placeholders
-  - Nested components
-
-### VirtualizationTable Example
-- Implements a full-featured data table with:
-  - 12 columns with different data types
-  - Custom column widths
-  - Sortable columns with visual indicators
-  - Status indicators with color coding
-  - Custom cell rendering
-  - Comprehensive footer with statistics
-- Features advanced user data management:
-  - 1000+ mock user records
-  - Multiple data types (text, dates, numbers)
-  - Status tracking
-  - Performance metrics
-  - Team information
-- Demonstrates sophisticated styling:
-  - Hover effects
-  - Status indicators
-  - Responsive layout
-  - Custom header/footer designs
-
-### VirtualizationGrid Example
-- Showcases a 1000x1000 grid implementation
-- Features:
-  - Dynamic cell background colors
-  - Interactive cell selection
-  - Custom content generation
-  - Responsive layout
-  - Efficient rendering of large datasets
-- Implements:
-  - Cell click handlers
-  - Visual selection feedback
-  - Custom cell styling
-  - Dynamic content generation
-  - Performant scroll handling
-
-### Running the Example
-
-```bash
-npm run example
-```
-
-The example app demonstrates:
-- Basic and advanced usage of all three components
-- Table virtualization with sorting and custom column widths
-- Grid virtualization with interactive features
-- Dynamic height calculations
-- Custom styling examples
-- Performance optimization techniques
-- Different types of content rendering
-- Responsive design patterns
-- Integration with TypeScript
-
-## Basic Usage
-
-### Virtualization Component
-
-```typescript
+```tsx
 import { Virtualization } from 'simple-virtualization';
 
-function SimpleList() {
-  const items = Array.from({ length: 10000 }, (_, i) => `Item ${i}`);
+const items = Array.from({ length: 10_000 }, (_, i) => <p>Row {i}</p>);
 
-  return (
-    <Virtualization
-      items={items}
-      className="virtual-list"
-      estimatedItemHeight={40}
-      overscanCount={5}
-    />
-  );
+export function List() {
+  return <Virtualization items={items} estimatedItemHeight={40} style={{ height: 480 }} />;
 }
 ```
 
-### VirtualizationTable Component
+> The scroll container needs a fixed height (`style`, `className` or a sized parent). Otherwise it grows to fit every item and nothing is virtualized.
 
-```typescript
+## Components
+
+### `Virtualization`
+
+A vertical list. Item heights are measured after render and cached, so items do not need to share a height.
+
+`items` accepts any mix of these:
+
+| Item | Rendered as |
+| --- | --- |
+| `string` | Raw HTML (see [Security](#security)) |
+| React element | As-is (hooks allowed) |
+| `({ index }) => ReactNode` | Called as a plain function |
+| `{ component \| render, props }` | `component({ ...props, index })` |
+
+Function and object items are **called as functions, not mounted**, so they must not use hooks. If an item needs state or effects, pass it as an element: `<MyRow />`.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `items` | `ReactComponentOrElement[]` | required | Content to render |
+| `estimatedItemHeight` | `number` | `100` | Height used before an item is measured |
+| `overscanCount` | `number` | `5` | Extra items rendered below the viewport |
+| `initialRenderCount` | `number` | `20` | Items rendered on the first pass (and on the server) |
+| `className` / `style` | `string` / `CSSProperties` | – | Scroll container |
+| `itemClassName` / `itemStyle` | `string` / `CSSProperties` | – | Wrapper around each item |
+
+### `VirtualizationTable`
+
+A CSS-grid table built on `Virtualization`. It keeps the header, body and footer scrolled together horizontally, and sorts on click in the order asc → desc → original order.
+
+```tsx
 import { VirtualizationTable } from 'simple-virtualization';
 
-function DataTable() {
-  const data = Array.from({ length: 10000 }, (_, i) => ({
-    id: i,
-    name: `Item ${i}`,
-    value: Math.random() * 100
-  }));
+type User = { id: number; name: string; score: number };
 
+const users: User[] = Array.from({ length: 10_000 }, (_, i) => ({
+  id: i,
+  name: `User ${i}`,
+  score: Math.round(Math.random() * 100),
+}));
+
+export function Users() {
   return (
-    <VirtualizationTable
-      data={data}
+    <VirtualizationTable<User>
+      data={users}
+      columnWidths={['240px', '120px']}
+      tableHeight={500}
       Header={({ onSort, sortState }) => (
-        <div className="header-row">
-          <div onClick={() => onSort('name')}>Name</div>
-          <div onClick={() => onSort('value')}>Value</div>
-        </div>
-      )}
-      Row={({ item, index }) => (
         <>
-          <div>{item.name}</div>
-          <div>{item.value.toFixed(2)}</div>
+          <button onClick={() => onSort('name')}>Name {sortState.column === 'name' && sortState.direction}</button>
+          <button onClick={() => onSort('score')}>Score {sortState.column === 'score' && sortState.direction}</button>
         </>
       )}
-      columnWidths={['200px', '150px']}
-      tableHeight="500px"
+      Row={({ item }) => (
+        <>
+          <div>{item.name}</div>
+          <div>{item.score}</div>
+        </>
+      )}
     />
   );
 }
 ```
 
-### VirtualizationGrid Component
+`Header` and `Row` should return one element per column, usually inside a fragment. Each element becomes a grid cell. `Row` is mounted as a normal component, so it can use hooks.
 
-```typescript
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `data` | `T[]` | required | Row data |
+| `Header` | `ComponentType<{ onSort, sortState }>` | required | Header cells. Call `onSort(key)` with a key of `T` |
+| `Row` | `ComponentType<{ item: T; index }>` | required | Cells for one row |
+| `Footer` | `ComponentType` | – | Optional footer |
+| `columnWidths` | `string[]` | – | Pixel widths such as `'200px'`. Scaled up proportionally to fill a wider container |
+| `tableHeight` | `string \| number` | `'400px'` | Height of the scrolling body |
+| `estimatedRowHeight` | `number` | `40` | Initial row height estimate |
+| `overscanCount` | `number` | `5` | Extra rows rendered below the viewport |
+| `defaultSortColumn` / `defaultSortDirection` | `string` / `'asc' \| 'desc' \| null` | `''` / `null` | Initial sort |
+| `footerDistributed` | `boolean` | `true` | `true` renders the footer as a block. `false` lays it out on the column grid |
+| `style` / `headerStyle` / `rowStyle` / `footerStyle` | `CSSProperties` | – | Styles for the outer container, header, body wrapper and footer |
+
+Sorting compares `item[column]` with `<`, so it works on strings, numbers and dates. To sort anything else, sort `data` yourself.
+
+### `VirtualizationGrid`
+
+A 2D grid with fixed-size cells, virtualized on both axes.
+
+```tsx
 import { VirtualizationGrid } from 'simple-virtualization';
 
-function DataGrid() {
+export function Sheet() {
   return (
     <VirtualizationGrid
-      dimensions={{
-        rowCount: 1000,
-        columnCount: 1000
-      }}
-      estimatedColumnWidth={100}
-      estimatedRowHeight={50}
-      overscanCount={2}
-      renderCell={(rowIndex, columnIndex) => (
-        `Cell ${rowIndex},${columnIndex}`
-      )}
-      className="virtual-grid"
-      style={{ height: '500px' }}
+      dimensions={{ rowCount: 1000, columnCount: 1000 }}
+      estimatedRowHeight={32}
+      estimatedColumnWidth={96}
+      renderCell={(row, col) => `${row},${col}`}
+      style={{ height: 500 }}
     />
   );
 }
 ```
 
-## Component Props
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `dimensions` | `{ rowCount; columnCount }` | required | Grid size |
+| `renderCell` | `(row, col) => ReactNode` | required | Content for one cell |
+| `estimatedRowHeight` / `estimatedColumnWidth` | `number` | `50` / `100` | Fixed cell size in px |
+| `overscanCount` | `number` | `2` | Extra rows and columns rendered on each side |
+| `className` / `style` | `string` / `CSSProperties` | – | Scroll container (defaults to `100%` × `100%` of its parent) |
+| `cellClassName` / `cellStyle` | `string` / `CSSProperties` | – | Each cell |
 
-### Virtualization Props
+## Framework notes
 
-```typescript
-interface VirtualizationProps {
-  items: ReactComponentOrElement[];
-  className?: string;
-  itemClassName?: string;
-  style?: CSSProperties;
-  itemStyle?: CSSProperties;
-  overscanCount?: number;
-  initialRenderCount?: number;
-  estimatedItemHeight?: number;
-}
-```
-
-### VirtualizationTable Props
-
-```typescript
-interface VirtualizationTableProps<T> {
-  data: T[];
-  Header: React.ComponentType<{
-    onSort: (column: string) => void;
-    sortState: SortState;
-  }>;
-  Footer?: React.ComponentType;
-  Row: React.ComponentType<{ item: T; index: number }>;
-  style?: React.CSSProperties;
-  headerStyle?: React.CSSProperties;
-  footerStyle?: React.CSSProperties;
-  rowStyle?: React.CSSProperties;
-  tableHeight?: string | number;
-  estimatedRowHeight?: number;
-  overscanCount?: number;
-  columnWidths?: string[];
-  footerDistributed?: boolean;
-  defaultSortColumn?: string;
-  defaultSortDirection?: SortDirection;
-}
-```
-
-### VirtualizationGrid Props
-
-```typescript
-interface VirtualizationGridProps {
-  dimensions: {
-    rowCount: number;
-    columnCount: number;
-  };
-  estimatedColumnWidth?: number;
-  estimatedRowHeight?: number;
-  overscanCount?: number;
-  renderCell: (rowIndex: number, columnIndex: number) => React.ReactNode;
-  className?: string;
-  style?: CSSProperties;
-  cellClassName?: string;
-  cellStyle?: CSSProperties;
-}
-```
-
-## Advanced Features
-
-### Dynamic Height Calculation
-
-Both list and table components automatically measure and adapt to varying content heights:
-
-```typescript
-<Virtualization
-  items={items}
-  estimatedItemHeight={50}  // Initial estimate
-  // Heights are automatically measured and cached
-/>
-```
-
-### Grid Cell Customization
-
-```typescript
-<VirtualizationGrid
-  dimensions={{ rowCount: 100, columnCount: 100 }}
-  cellStyle={{
-    border: '1px solid #ccc',
-    padding: '8px'
-  }}
-  renderCell={(row, col) => (
-    <div className="custom-cell">
-      {/* Custom cell content */}
-    </div>
-  )}
-/>
-```
-
-### Table Sorting and Column Management
-
-```typescript
-<VirtualizationTable
-  defaultSortColumn="name"
-  defaultSortDirection="asc"
-  columnWidths={['200px', '150px', '100px']}
-  // Columns will resize proportionally when container width changes
-/>
-```
-
-## Performance Optimizations
-
-### Virtualization Component
-- Binary search for efficient item positioning
-- Cached height measurements
-- Scroll direction-aware rendering
-- Minimal DOM updates
-- RequestAnimationFrame for smooth scrolling
-- Stable callback optimizations
-
-### VirtualizationTable Component
-- Virtualized row rendering
-- Optimized scroll synchronization
-- Efficient column width calculations
-- Debounced resize handling
-- Memoized sorting operations
-
-### VirtualizationGrid Component
-- Efficient viewport calculation
-- Minimal cell re-rendering
-- Optimized scroll handling
-- Memory-efficient cell management
-- Smart overscan implementation
-
-## Browser Support
-
-Supports all modern browsers with these features:
-- ResizeObserver API
-- RequestAnimationFrame
-- CSS Grid
-- Flexbox
-- IntersectionObserver (optional)
-
-## TypeScript Support
-
-All components include comprehensive TypeScript definitions:
-
-```typescript
-// Example type usage
-type YourDataType = {
-  id: number;
-  name: string;
-  // ...
-};
-
-<VirtualizationTable<YourDataType>
-  data={yourData}
-  // TypeScript will ensure type safety
-/>
-```
+- **Next.js App Router / React Server Components:** the package has no `"use client"` directive. Import it from a file that starts with `'use client'`.
+- **SSR:** nothing reads `window` or `document` during render. `Virtualization` server-renders the first `initialRenderCount` items. React 18 logs a `useLayoutEffect` warning on the server for `VirtualizationGrid`.
+- **Testing (Jest / Vitest with jsdom):** `VirtualizationTable` uses `ResizeObserver`, which jsdom does not provide, so stub it in your test setup. jsdom does no layout either, so expect only the initial render range.
+- **Accessibility:** the markup is plain `div`s with no ARIA roles. Add `role="row"`, `role="columnheader"` and `role="cell"` (or real `<button>`s for sorting) in the content you render. As with any virtualized list, off-screen rows are not in the DOM, so in-page find and screen readers cannot reach them.
 
 ## Security
 
-String items passed to `Virtualization` are rendered as raw HTML. Sanitize untrusted strings (for example with [DOMPurify](https://github.com/cure53/DOMPurify)) or pass React elements instead. To report a vulnerability, see [SECURITY.md](SECURITY.md).
+Strings in `items` are injected as HTML via `dangerouslySetInnerHTML`. Never pass untrusted strings. Pass React elements instead, or sanitize first, for example with [DOMPurify](https://github.com/cure53/DOMPurify). To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
-## Contributing
+## Limitations
 
-Contributions are welcome, including AI-assisted ones. Start with [CONTRIBUTING.md](CONTRIBUTING.md), which covers setup, the checks CI runs, and the AI-assisted contribution policy. [AGENTS.md](AGENTS.md) documents the project layout, commands, conventions and SemVer contract for both humans and AI coding agents.
+The following are known and tracked. They are planned as focused fixes; see [AGENTS.md](AGENTS.md#known-issues-do-not-fix-incidentally).
+
+- `Virtualization` can compute wrong ranges if the **length** of `items` changes after mount. Remount with a `key` (for example `key={items.length}`) as a workaround.
+- `VirtualizationTable` reads `columnWidths` only on mount and resize.
+- Grid cells all have the same size. Use `Virtualization` or `VirtualizationTable` when sizes vary.
+- Prop types are not exported yet. Use `React.ComponentProps<typeof Virtualization>`.
+
+If you need headless hooks, horizontal or windowed-element scrolling, sticky rows, or React 19, a hook-based library such as [TanStack Virtual](https://tanstack.com/virtual) may suit you better.
+
+## Development
 
 ```bash
 npm ci
-npm run validate   # lint, typecheck, tests, build, size budget, package lint
+npm run example    # Vite demo app with all three components
+npm run validate   # lint, typecheck, tests + coverage, build, size budget, package lint
 ```
 
-Release notes are in [CHANGELOG.md](CHANGELOG.md).
+Contributions are welcome, including AI-assisted ones. See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow and [AGENTS.md](AGENTS.md) for conventions and the SemVer contract. Release notes are in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-[MIT](LICENSE)
-
-## Support
-
-For issues and feature requests, please use the [GitHub issue tracker](https://github.com/izaccavalheiro/virtualization/issues).
+[MIT](LICENSE) © Izac Cavalheiro

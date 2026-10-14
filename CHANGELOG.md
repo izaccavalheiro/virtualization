@@ -14,6 +14,7 @@ No public API changes. Component props, defaults, rendered output and the `peerD
 - Type declarations now resolve under `moduleResolution: "node16"` / `"nodenext"`. Previously they used extensionless relative imports that failed to resolve.
 - CommonJS consumers (`require`) now get CommonJS-flavoured type declarations (`dist/index.d.cts`) instead of ESM ones.
 - Test files' type declarations are no longer published in the package.
+- README rewritten to match the actual behaviour. It drops claims the code does not support (polyfills for older React, error boundaries, IntersectionObserver, debounced resize). It fixes the `VirtualizationTable` example, which wrapped header cells in a single grid item, and adds props tables with defaults, Next.js/SSR/testing/accessibility notes and known limitations.
 
 ### Added
 
