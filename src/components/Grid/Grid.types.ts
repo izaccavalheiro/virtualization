@@ -9,6 +9,8 @@ export interface VirtualizationGridProps {
   dimensions: GridDimensions;
   estimatedColumnWidth?: number;
   estimatedRowHeight?: number;
+  getColumnWidth?: (columnIndex: number) => number;
+  getRowHeight?: (rowIndex: number) => number;
   overscanCount?: number;
   renderCell: (rowIndex: number, columnIndex: number) => React.ReactNode;
   className?: string;

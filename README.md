@@ -120,7 +120,7 @@ Sorting compares `item[column]` with `<`, so it works on strings, numbers and da
 
 ### `VirtualizationGrid`
 
-A 2D grid with fixed-size cells, virtualized on both axes.
+A 2D grid virtualized on both axes. By default every cell has the same size.
 
 ```tsx
 import { VirtualizationGrid } from 'simple-virtualization';
@@ -138,14 +138,55 @@ export function Sheet() {
 }
 ```
 
+For rows or columns of different sizes, pass `getRowHeight` and/or `getColumnWidth`. Each returns a size in px for an index. You can set one axis and keep a fixed size on the other.
+
+```tsx
+const columnWidths = [240, 96, 96, 160];
+
+export function Report() {
+  const getColumnWidth = useCallback((col: number) => columnWidths[col], []);
+  const getRowHeight = useCallback((row: number) => (row === 0 ? 48 : 32), []);
+
+  return (
+    <VirtualizationGrid
+      dimensions={{ rowCount: 10_000, columnCount: columnWidths.length }}
+      getColumnWidth={getColumnWidth}
+      getRowHeight={getRowHeight}
+      renderCell={(row, col) => `${row},${col}`}
+      style={{ height: 500 }}
+    />
+  );
+}
+```
+
+The grid calls the function once per row or column and caches the offsets until the function, the count or the fixed size changes. Keep the function stable with `useCallback` (or define it outside the component). To change sizes, pass a new function. Sizes are not measured from the content, so content larger than its cell overflows.
+
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `dimensions` | `{ rowCount; columnCount }` | required | Grid size |
 | `renderCell` | `(row, col) => ReactNode` | required | Content for one cell |
-| `estimatedRowHeight` / `estimatedColumnWidth` | `number` | `50` / `100` | Fixed cell size in px |
+| `estimatedRowHeight` / `estimatedColumnWidth` | `number` | `50` / `100` | Cell size in px for every row / column |
+| `getRowHeight` / `getColumnWidth` | `(index) => number` | – | Size in px of each row / column. Takes precedence over the fixed size on that axis |
 | `overscanCount` | `number` | `2` | Extra rows and columns rendered on each side |
 | `className` / `style` | `string` / `CSSProperties` | – | Scroll container (defaults to `100%` × `100%` of its parent) |
 | `cellClassName` / `cellStyle` | `string` / `CSSProperties` | – | Each cell |
+
+## TypeScript
+
+Prop types are exported from the package entry:
+
+```ts
+import type {
+  VirtualizationProps,
+  VirtualizationGridProps,
+  GridDimensions,
+  VirtualizationTableProps,
+  SortState,
+  SortDirection,
+} from 'simple-virtualization';
+```
+
+For example, type a `VirtualizationTable` header outside the JSX with `VirtualizationTableProps<User>['Header']`, or receive `SortState` in your own components.
 
 ## Framework notes
 
@@ -160,10 +201,7 @@ Strings in `items` are injected as HTML via `dangerouslySetInnerHTML`. Never pas
 
 ## Limitations
 
-The following are known and tracked. They are planned as focused fixes; see [AGENTS.md](AGENTS.md#known-issues-do-not-fix-incidentally).
-
-- Grid cells all have the same size. Use `Virtualization` or `VirtualizationTable` when sizes vary.
-- Prop types are not exported yet. Use `React.ComponentProps<typeof Virtualization>`.
+- `VirtualizationGrid` does not measure cells. Sizes come from `estimatedRowHeight` / `estimatedColumnWidth` or from `getRowHeight` / `getColumnWidth`. For content-measured heights, use `Virtualization` or `VirtualizationTable`.
 
 If you need headless hooks, horizontal or windowed-element scrolling, sticky rows, or React 19, a hook-based library such as [TanStack Virtual](https://tanstack.com/virtual) may suit you better.
 

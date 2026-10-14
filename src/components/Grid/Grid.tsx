@@ -1,17 +1,21 @@
-import React, { 
-  useCallback, 
-  useRef, 
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
   useState,
   useLayoutEffect,
   CSSProperties,
   useEffect
 } from 'react';
 import { VirtualizationGridProps } from './Grid.types';
+import { createGridAxis } from './gridAxis';
 
 export function VirtualizationGrid({
   dimensions,
   estimatedColumnWidth = 100,
   estimatedRowHeight = 50,
+  getColumnWidth,
+  getRowHeight,
   overscanCount = 2,
   renderCell,
   className = '',
@@ -28,6 +32,18 @@ export function VirtualizationGrid({
     columnEnd: 10
   });
 
+  const { rowCount, columnCount } = dimensions;
+
+  const rowAxis = useMemo(
+    () => createGridAxis(rowCount, getRowHeight ?? estimatedRowHeight),
+    [rowCount, getRowHeight, estimatedRowHeight]
+  );
+
+  const columnAxis = useMemo(
+    () => createGridAxis(columnCount, getColumnWidth ?? estimatedColumnWidth),
+    [columnCount, getColumnWidth, estimatedColumnWidth]
+  );
+
   const calculateVisibleRange = useCallback(() => {
     if (!containerRef.current) return;
 
@@ -38,25 +54,25 @@ export function VirtualizationGrid({
       clientWidth
     } = containerRef.current;
 
-    const rowStart = Math.floor(scrollTop / estimatedRowHeight);
+    const rowStart = rowAxis.startIndexAt(scrollTop);
     const rowEnd = Math.min(
-      dimensions.rowCount - 1,
-      Math.ceil((scrollTop + clientHeight) / estimatedRowHeight)
+      rowCount - 1,
+      rowAxis.endIndexAt(scrollTop + clientHeight)
     );
 
-    const columnStart = Math.floor(scrollLeft / estimatedColumnWidth);
+    const columnStart = columnAxis.startIndexAt(scrollLeft);
     const columnEnd = Math.min(
-      dimensions.columnCount - 1,
-      Math.ceil((scrollLeft + clientWidth) / estimatedColumnWidth)
+      columnCount - 1,
+      columnAxis.endIndexAt(scrollLeft + clientWidth)
     );
 
     setVisibleRange({
       rowStart: Math.max(0, rowStart - overscanCount),
-      rowEnd: Math.min(dimensions.rowCount - 1, rowEnd + overscanCount),
+      rowEnd: Math.min(rowCount - 1, rowEnd + overscanCount),
       columnStart: Math.max(0, columnStart - overscanCount),
-      columnEnd: Math.min(dimensions.columnCount - 1, columnEnd + overscanCount)
+      columnEnd: Math.min(columnCount - 1, columnEnd + overscanCount)
     });
-  }, [dimensions, estimatedRowHeight, estimatedColumnWidth, overscanCount]);
+  }, [rowAxis, columnAxis, rowCount, columnCount, overscanCount]);
 
   const handleScroll = useCallback(() => {
     requestAnimationFrame(calculateVisibleRange);
@@ -66,16 +82,21 @@ export function VirtualizationGrid({
     calculateVisibleRange();
   }, [calculateVisibleRange]);
 
-  const totalHeight = dimensions.rowCount * estimatedRowHeight;
-  const totalWidth = dimensions.columnCount * estimatedColumnWidth;
-  const topPadding = visibleRange.rowStart * estimatedRowHeight;
-  const leftPadding = visibleRange.columnStart * estimatedColumnWidth;
+  const totalHeight = rowAxis.total;
+  const totalWidth = columnAxis.total;
+  const topPadding = rowAxis.offsetOf(visibleRange.rowStart);
+  const leftPadding = columnAxis.offsetOf(visibleRange.columnStart);
+
+  // The initial range is a guess made before layout; never render past the grid.
+  const lastRow = Math.min(visibleRange.rowEnd, rowCount - 1);
+  const lastColumn = Math.min(visibleRange.columnEnd, columnCount - 1);
 
   const rows: React.ReactNode[] = [];
-  for (let rowIndex = visibleRange.rowStart; rowIndex <= visibleRange.rowEnd; rowIndex++) {
+  for (let rowIndex = visibleRange.rowStart; rowIndex <= lastRow; rowIndex++) {
     const cells: React.ReactNode[] = [];
-    
-    for (let colIndex = visibleRange.columnStart; colIndex <= visibleRange.columnEnd; colIndex++) {
+    const rowHeight = rowAxis.sizeOf(rowIndex);
+
+    for (let colIndex = visibleRange.columnStart; colIndex <= lastColumn; colIndex++) {
       cells.push(
         <div
           key={`${rowIndex}-${colIndex}`}
@@ -83,8 +104,8 @@ export function VirtualizationGrid({
           style={{
             ...cellStyle,
             display: 'inline-block',
-            width: estimatedColumnWidth,
-            height: estimatedRowHeight,
+            width: columnAxis.sizeOf(colIndex),
+            height: rowHeight,
             verticalAlign: 'top'
           }}
         >
@@ -97,7 +118,7 @@ export function VirtualizationGrid({
       <div
         key={rowIndex}
         style={{
-          height: estimatedRowHeight,
+          height: rowHeight,
           whiteSpace: 'nowrap'
         }}
       >
