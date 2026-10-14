@@ -1,0 +1,48 @@
+name: Bug report
+description: Something renders or behaves incorrectly
+labels: [bug]
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Virtualization
+        - VirtualizationTable
+        - VirtualizationGrid
+        - Packaging / types / build
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: A code snippet or a link to a CodeSandbox / StackBlitz / repository.
+      render: tsx
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: simple-virtualization version
+      placeholder: 1.0.15
+    validations:
+      required: true
+  - type: input
+    id: react
+    attributes:
+      label: React version
+      placeholder: 18.3.1
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser / bundler / framework
+      placeholder: Chrome 140, Vite 7, Next.js 15

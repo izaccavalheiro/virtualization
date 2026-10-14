@@ -1,2 +1,14 @@
 node_modules/
 coverage/
+
+# Bundle analyzer output (npm run analyze)
+dist/stats.html
+
+# npm pack output
+*.tgz
+
+# Personal Claude Code settings
+.claude/settings.local.json
+
+.DS_Store
+*.log

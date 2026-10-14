@@ -1,5 +1,11 @@
 # Simple Virtualization for React
 
+[![CI](https://github.com/izaccavalheiro/virtualization/actions/workflows/ci.yml/badge.svg)](https://github.com/izaccavalheiro/virtualization/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/simple-virtualization.svg)](https://www.npmjs.com/package/simple-virtualization)
+[![minzipped size](https://img.shields.io/bundlephobia/minzip/simple-virtualization)](https://bundlephobia.com/package/simple-virtualization)
+[![types included](https://img.shields.io/npm/types/simple-virtualization)](https://www.npmjs.com/package/simple-virtualization)
+[![license: MIT](https://img.shields.io/npm/l/simple-virtualization.svg)](LICENSE)
+
 ## Overview
 
 This package provides three powerful virtualization components for React applications:
@@ -371,19 +377,25 @@ type YourDataType = {
 />
 ```
 
+## Security
+
+String items passed to `Virtualization` are rendered as raw HTML. Sanitize untrusted strings (for example with [DOMPurify](https://github.com/cure53/DOMPurify)) or pass React elements instead. To report a vulnerability, see [SECURITY.md](SECURITY.md).
+
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+Contributions are welcome, including AI-assisted ones. Start with [CONTRIBUTING.md](CONTRIBUTING.md), which covers setup, the checks CI runs, and the AI-assisted contribution policy. [AGENTS.md](AGENTS.md) documents the project layout, commands, conventions and SemVer contract for both humans and AI coding agents.
+
+```bash
+npm ci
+npm run validate   # lint, typecheck, tests, build, size budget, package lint
+```
+
+Release notes are in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-MIT License
+[MIT](LICENSE)
 
 ## Support
 
-For issues and feature requests, please use the GitHub issue tracker.
+For issues and feature requests, please use the [GitHub issue tracker](https://github.com/izaccavalheiro/virtualization/issues).

@@ -1,0 +1,6 @@
+* text=auto eol=lf
+
+# Build output: keep byte-identical across platforms so the CI dist/ sync check
+# is reliable, and collapse it in GitHub diffs.
+dist/** linguist-generated=true
+package-lock.json linguist-generated=true
