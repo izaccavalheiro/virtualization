@@ -3,7 +3,7 @@ import { default as default_2 } from 'react';
 import { ReactElement } from 'react';
 import { ReactNode } from 'react';
 
-declare interface GridDimensions {
+export declare interface GridDimensions {
     rowCount: number;
     columnCount: number;
 }
@@ -20,21 +20,23 @@ declare type ReactComponentOrElement = string | ReactElement | ReactNode | ((pro
     props?: Record<string, any>;
 };
 
-declare type SortDirection = 'asc' | 'desc' | null;
+export declare type SortDirection = 'asc' | 'desc' | null;
 
-declare interface SortState {
+export declare interface SortState {
     column: string | null;
     direction: SortDirection;
 }
 
 export declare function Virtualization({ items, className, itemClassName, style, itemStyle, overscanCount, initialRenderCount, estimatedItemHeight }: VirtualizationProps): default_2.JSX.Element;
 
-export declare function VirtualizationGrid({ dimensions, estimatedColumnWidth, estimatedRowHeight, overscanCount, renderCell, className, style, cellClassName, cellStyle }: VirtualizationGridProps): default_2.JSX.Element;
+export declare function VirtualizationGrid({ dimensions, estimatedColumnWidth, estimatedRowHeight, getColumnWidth, getRowHeight, overscanCount, renderCell, className, style, cellClassName, cellStyle }: VirtualizationGridProps): default_2.JSX.Element;
 
-declare interface VirtualizationGridProps {
+export declare interface VirtualizationGridProps {
     dimensions: GridDimensions;
     estimatedColumnWidth?: number;
     estimatedRowHeight?: number;
+    getColumnWidth?: (columnIndex: number) => number;
+    getRowHeight?: (rowIndex: number) => number;
     overscanCount?: number;
     renderCell: (rowIndex: number, columnIndex: number) => React.ReactNode;
     className?: string;
@@ -43,7 +45,7 @@ declare interface VirtualizationGridProps {
     cellStyle?: CSSProperties;
 }
 
-declare interface VirtualizationProps {
+export declare interface VirtualizationProps {
     items: ReactComponentOrElement[];
     className?: string;
     itemClassName?: string;
@@ -56,7 +58,7 @@ declare interface VirtualizationProps {
 
 export declare function VirtualizationTable<T>({ data, Header, Footer, Row, style, headerStyle, footerStyle, rowStyle, tableHeight, estimatedRowHeight, overscanCount, columnWidths: initialColumnWidths, footerDistributed, defaultSortColumn, defaultSortDirection }: VirtualizationTableProps<T>): default_2.JSX.Element;
 
-declare interface VirtualizationTableProps<T> {
+export declare interface VirtualizationTableProps<T> {
     data: T[];
     Header: React.ComponentType<{
         onSort: (column: string) => void;

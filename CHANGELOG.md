@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+Minor release: new optional props and new type exports. Existing props, defaults and the `peerDependencies` range are unchanged.
+
+### Added
+
+- Prop types are now exported from the package entry: `VirtualizationProps`, `VirtualizationGridProps`, `GridDimensions`, `VirtualizationTableProps`, `SortState` and `SortDirection`. These are type-only exports, so the runtime exports are unchanged.
+- `VirtualizationGrid` supports variable row heights and column widths through the new optional `getRowHeight(rowIndex)` and `getColumnWidth(columnIndex)` props. Each one takes precedence over `estimatedRowHeight` / `estimatedColumnWidth` on its axis. Without them, the grid renders exactly as before.
+
+### Fixed
+
+- `VirtualizationGrid` no longer calls `renderCell` for rows or columns outside `dimensions`. Before layout, the first render (and server rendering) used a fixed 11 × 11 window, so a 3 × 2 grid called `renderCell` with indexes such as `(10, 10)` and rendered empty cells for them.
+
+## [1.0.18] - 2026-10-14
+
 No public API changes. Component props, defaults and the `peerDependencies` range are unchanged.
 
 ### Fixed
@@ -43,6 +56,7 @@ No public API changes. Component props, defaults, rendered output and the `peerD
 
 Earlier releases (1.0.0 to 1.0.15) predate this changelog; see the [commit history](https://github.com/izaccavalheiro/virtualization/commits/main).
 
-[Unreleased]: https://github.com/izaccavalheiro/virtualization/compare/v1.0.17...HEAD
+[Unreleased]: https://github.com/izaccavalheiro/virtualization/compare/v1.0.18...HEAD
+[1.0.18]: https://github.com/izaccavalheiro/virtualization/releases/tag/v1.0.18
 [1.0.17]: https://github.com/izaccavalheiro/virtualization/releases/tag/v1.0.17
 [1.0.15]: https://www.npmjs.com/package/simple-virtualization/v/1.0.15

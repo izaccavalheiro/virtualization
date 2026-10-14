@@ -4,12 +4,12 @@ Guidance for AI coding agents (Claude Code, Codex, Copilot, Cursor, Gemini, etc.
 
 ## Project
 
-`simple-virtualization` is a zero-dependency React library published to npm. It exports exactly three components from [src/index.ts](src/index.ts):
+`simple-virtualization` is a zero-dependency React library published to npm. It exports exactly three components from [src/index.ts](src/index.ts), plus their prop types (`VirtualizationProps`, `VirtualizationGridProps`, `GridDimensions`, `VirtualizationTableProps`, `SortState`, `SortDirection`) as type-only exports from each component's `index.ts`:
 
 | Export | Source | What it does |
 | --- | --- | --- |
 | `Virtualization` | [src/components/Virtualization/](src/components/Virtualization/) | Vertical list with variable, measured item heights. Accepts strings (rendered as HTML), elements, function components and `{ component \| render, props }` objects. |
-| `VirtualizationGrid` | [src/components/Grid/](src/components/Grid/) | 2D grid with fixed `estimatedRowHeight` × `estimatedColumnWidth` cells, virtualized on both axes. |
+| `VirtualizationGrid` | [src/components/Grid/](src/components/Grid/) | 2D grid virtualized on both axes. Cells are `estimatedRowHeight` × `estimatedColumnWidth`, or per row/column sizes from `getRowHeight` / `getColumnWidth` (summed into offsets in [gridAxis.ts](src/components/Grid/gridAxis.ts)). |
 | `VirtualizationTable` | [src/components/Table/](src/components/Table/) | CSS-grid table built on top of `Virtualization`, with sorting (asc → desc → none), synced horizontal scroll and proportional column widths. |
 
 `react` and `react-dom` `^18.0.0` are **peer** dependencies. There are no runtime dependencies; keep it that way.
@@ -46,6 +46,7 @@ A change is ready when:
 This package follows [Semantic Versioning](https://semver.org). The public API is:
 
 - the three named exports above and the shape/behaviour of their props;
+- the exported prop types listed above (removing or narrowing one is **major**);
 - the `exports`, `main`, `module` and `types` entry points in [package.json](package.json);
 - the supported `peerDependencies` range.
 
@@ -68,10 +69,7 @@ When unsure, treat it as the higher bump and say so in the PR. Never bump `versi
 
 ## Known issues (do not "fix" incidentally)
 
-These are tracked deliberately and should be fixed in focused PRs with tests, because they change runtime behaviour:
-
-- `VirtualizationGrid` only supports uniform cell sizes. Variable sizes need new props, which is a **minor** release.
-- Prop types (`VirtualizationProps`, etc.) are not exported from the package entry. Exporting them is a **minor** release.
+None are tracked right now. When you find a bug whose fix changes runtime behaviour, list it here and fix it in its own PR with tests, not as part of an unrelated change.
 
 The ESLint warning count is capped in the `lint` script. If you fix a warning, lower the `--max-warnings` number in [package.json](package.json); never raise it.
 
