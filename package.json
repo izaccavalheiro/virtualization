@@ -55,7 +55,7 @@
     "preview": "vite preview",
     "preexample": "cd example && npm i",
     "example": "cd example && npm run dev",
-    "lint": "eslint . --max-warnings=12",
+    "lint": "eslint . --max-warnings=5",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
     "test": "jest",

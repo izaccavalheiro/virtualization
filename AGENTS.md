@@ -70,9 +70,7 @@ When unsure, treat it as the higher bump and say so in the PR. Never bump `versi
 
 These are tracked deliberately and should be fixed in focused PRs with tests, because they change runtime behaviour:
 
-- `Virtualization.tsx` uses `useCallback(..., [])` for position/range helpers, so they capture the first render's `items.length`, `totalHeight`, `estimatedItemHeight` and `overscanCount`. Changing `items` length after mount can produce wrong ranges. These show up as `react-hooks/exhaustive-deps` warnings.
-- `Table.tsx` puts pseudo-selectors (`'&::-webkit-scrollbar'`) in inline styles; React ignores them and warns in development.
-- `Table.tsx` `calculateColumnWidths` ignores later changes to the `columnWidths` prop.
+- `VirtualizationGrid` only supports uniform cell sizes. Variable sizes need new props, which is a **minor** release.
 - Prop types (`VirtualizationProps`, etc.) are not exported from the package entry. Exporting them is a **minor** release.
 
 The ESLint warning count is capped in the `lint` script. If you fix a warning, lower the `--max-warnings` number in [package.json](package.json); never raise it.

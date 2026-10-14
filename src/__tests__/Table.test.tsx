@@ -146,6 +146,45 @@ describe('VirtualizationTable', () => {
     expect(header.style.gridTemplateColumns).toBe('400px 200px');
   });
 
+  it('applies columnWidths changes after mount', () => {
+    const { container, rerender } = render(
+      <VirtualizationTable
+        data={people}
+        Header={Header}
+        Row={Row}
+        columnWidths={['200px', '100px']}
+      />
+    );
+
+    rerender(
+      <VirtualizationTable
+        data={people}
+        Header={Header}
+        Row={Row}
+        columnWidths={['150px', '150px', '50px']}
+      />
+    );
+
+    const header = container.querySelector<HTMLElement>('div[style*="grid"]')!;
+    expect(header.style.gridTemplateColumns).toBe('150px 150px 50px');
+  });
+
+  it('falls back to the default template when columnWidths is removed', () => {
+    const { container, rerender } = render(
+      <VirtualizationTable
+        data={people}
+        Header={Header}
+        Row={Row}
+        columnWidths={['200px', '100px']}
+      />
+    );
+
+    rerender(<VirtualizationTable data={people} Header={Header} Row={Row} />);
+
+    const header = container.querySelector<HTMLElement>('div[style*="grid"]')!;
+    expect(header.style.gridTemplateColumns).not.toContain('200px');
+  });
+
   it('syncs horizontal scroll from the body to header and footer', () => {
     const { container } = render(
       <VirtualizationTable

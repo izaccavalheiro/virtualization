@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Virtualization } from '../components/Virtualization';
 
@@ -182,5 +182,84 @@ describe('Virtualization Component', () => {
     
     expect(screen.getByTestId('item-0')).toBeInTheDocument();
     expect(screen.getByTestId('item-4')).toBeInTheDocument();
+  });
+
+  describe('with a sized viewport', () => {
+    const VIEWPORT_HEIGHT = 300;
+    const ITEM_HEIGHT = 100;
+
+    const makeRows = (count: number) =>
+      Array.from({ length: count }, () =>
+        ({ index }: { index: number }) => <div data-testid="row">Row {index}</div>
+      );
+
+    const renderedRows = () => screen.queryAllByTestId('row').map((row) => row.textContent);
+
+    const scrollTo = (container: HTMLElement, scrollTop: number) => {
+      const scroller = container.firstElementChild as HTMLElement;
+      act(() => {
+        scroller.scrollTop = scrollTop;
+        fireEvent.scroll(scroller);
+      });
+    };
+
+    const totalHeightOf = (container: HTMLElement) =>
+      (container.firstElementChild!.firstElementChild as HTMLElement).style.height;
+
+    beforeEach(() => {
+      // jsdom has no layout; give the scroll container a height so ranges are meaningful.
+      jest.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(VIEWPORT_HEIGHT);
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+        cb(0);
+        return 0;
+      });
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('renders only the items near the viewport', () => {
+      render(<Virtualization items={makeRows(100)} estimatedItemHeight={ITEM_HEIGHT} />);
+
+      const rows = renderedRows();
+      expect(rows[0]).toBe('Row 0');
+      expect(rows.length).toBeLessThan(20);
+    });
+
+    it('passes the absolute index to items after scrolling', () => {
+      const { container } = render(
+        <Virtualization items={makeRows(100)} estimatedItemHeight={ITEM_HEIGHT} />
+      );
+
+      scrollTo(container, 5000);
+
+      const rows = renderedRows();
+      expect(rows).toContain('Row 50');
+      expect(rows).not.toContain('Row 0');
+    });
+
+    it('renders items added after mount', () => {
+      const { container, rerender } = render(
+        <Virtualization items={makeRows(5)} estimatedItemHeight={ITEM_HEIGHT} />
+      );
+
+      rerender(<Virtualization items={makeRows(100)} estimatedItemHeight={ITEM_HEIGHT} />);
+      expect(totalHeightOf(container)).toBe('10000px');
+
+      scrollTo(container, 100 * ITEM_HEIGHT - VIEWPORT_HEIGHT);
+      expect(renderedRows()).toContain('Row 99');
+    });
+
+    it('shrinks the scroll height when items are removed', () => {
+      const { container, rerender } = render(
+        <Virtualization items={makeRows(100)} estimatedItemHeight={ITEM_HEIGHT} />
+      );
+
+      rerender(<Virtualization items={makeRows(10)} estimatedItemHeight={ITEM_HEIGHT} />);
+
+      expect(totalHeightOf(container)).toBe('1000px');
+      expect(renderedRows()).toContain('Row 9');
+    });
   });
 });
